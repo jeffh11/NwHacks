@@ -8,9 +8,11 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 export const metadata: Metadata = {
-  title: "Family Connect",
+  // Updated title and description for Huddle branding
+  title: "Huddle | Your Private Family Space",
   description:
-    "A private, family-first space for staying connected across distance.",
+    "Stay close to family, even when you're far away. Private updates, voice notes, and memories.",
+  metadataBase: new URL(defaultUrl),
 };
 
 const geistSans = Geist({
@@ -25,15 +27,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased bg-[var(--bg-soft)] text-gray-900 text-lg`}>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <body 
+        className={`${geistSans.className} antialiased bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900`}
+      >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          {/* Added a max-width container to ensure content doesn't stretch 
+            too far on ultra-wide monitors 
+          */}
+          <div className="min-h-screen flex flex-col">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
