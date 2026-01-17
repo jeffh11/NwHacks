@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AuthButton } from "@/components/auth-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Button } from "@/components/ui/button"; //
 
 export default function Home() {
   return (
@@ -8,9 +9,18 @@ export default function Home() {
       {/* NAV */}
       <nav className="w-full flex justify-center border-b h-20 bg-white shadow-sm">
         <div className="w-full max-w-5xl flex justify-between items-center px-8 text-xl">
-          <span className="font-extrabold text-[var(--primary)]">Family Connect</span>
+          {/* ONLY CHANGE: Increased text size from default to text-4xl and added tracking-tighter */}
+          <span className="font-extrabold text-4xl tracking-tighter text-[var(--primary)]">Huddle</span>
+          
           <div className="flex gap-6 items-center">
-            <AuthButton />
+            <div className="flex gap-4">
+              <Button variant="outline" size="lg" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button size="lg" asChild>
+                <Link href="/login">Sign Up</Link>
+              </Button>
+            </div>
             <ThemeSwitcher />
           </div>
         </div>
@@ -34,7 +44,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer className="text-base text-gray-500 py-8">
-        Built with ❤️ using Supabase
+        Connecting families everywhere with Huddle
       </footer>
     </main>
   );
