@@ -15,19 +15,6 @@ async function AuthCheck({ children }: { children: React.ReactNode }) {
       redirect("/auth/login");
     }
 
-    // Check for active family
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('active_family_id')
-      .eq('id', user.id)
-      .single();
-
-        // Option 1 ─ send them back to the welcome screen
-    if (!profile?.active_family_id) {
-        redirect("/protected");          // ← existing route
-    }
-
-
   } catch (error) {
     console.error("Auth check failed:", error);
     redirect("/auth/login");
