@@ -14,6 +14,18 @@ export default async function createFamily(familyName: string, familyDescription
 
 	const joinCode = generateJoinCode();
 
+	// check if joinCode already exists
+	const { data: existingFamily } = await sb
+		.from("families")
+		.select("id")
+		.eq("id", joinCode)
+		.single();
+
+	while (existingFamily) {
+		// if it exists, generate a new codew (simple retry logic)
+		return createFamily(familyName, familyDescription);
+	}
+
 	const { error } = await sb
 		.from("families")
 		.insert({
