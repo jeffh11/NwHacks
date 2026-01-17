@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Users, Heart, Plus, ArrowRight } from "lucide-react";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -13,44 +15,85 @@ export default async function ProtectedPage() {
   const hasFamily = familyMemberships && familyMemberships.length > 0;
 
   return (
-    <div className="flex flex-col gap-8 items-center justify-center p-6">
-      <h1 className="text-3xl font-extrabold text-[var(--primary)] mb-2">
-        Welcome
-      </h1>
-      {!hasFamily ? (
-        <>
-          <p className="text-lg text-gray-700 mb-4 text-center">
-            You’re not part of a family yet. Join or create a family to get
-            started.
-          </p>
-          <div className="flex flex-col gap-4 w-full max-w-xs">
-            <Link
-              href="/protected/join-family"
-              className="px-6 py-4 rounded-xl bg-[var(--primary)] text-white text-lg font-semibold text-center hover:opacity-90 transition shadow-md"
-            >
-              Join a Family
-            </Link>
-            <Link
-              href="/protected/create-family"
-              className="px-6 py-4 rounded-xl border-2 border-gray-300 text-[var(--primary)] text-lg font-semibold text-center hover:bg-gray-50 transition"
-            >
-              Create a Family
-            </Link>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-amber-200 shadow-lg">
+        <CardHeader className="text-center pb-6">
+          <div className="flex justify-center mb-4">
+            <div className="h-16 w-16 rounded-full bg-orange-100 flex items-center justify-center">
+              {hasFamily ? (
+                <Heart className="h-8 w-8 text-orange-500" />
+              ) : (
+                <Users className="h-8 w-8 text-orange-500" />
+              )}
+            </div>
           </div>
-        </>
-      ) : (
-        <>
-          <p className="text-lg text-gray-700 mb-4 text-center">
-            You’re connected to your family.
+          <h1 className="text-2xl font-bold text-amber-900 mb-2">
+            {hasFamily ? "Welcome Back!" : "Welcome to Kinfolk"}
+          </h1>
+          <p className="text-amber-700/80 text-sm">
+            {hasFamily 
+              ? "Your family is waiting for you" 
+              : "Create or join your family to start sharing moments"}
           </p>
-          <Link
-            href="/protected/dashboard"
-            className="px-6 py-4 rounded-xl bg-[var(--primary)] text-white text-lg font-semibold text-center hover:opacity-90 transition shadow-md w-full max-w-xs"
-          >
-            Go to Family Dashboard
-          </Link>
-        </>
-      )}
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {!hasFamily ? (
+            <div className="space-y-4">
+              <Link
+                href="/protected/join-family"
+                className="group flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <div className="font-semibold">Join a Family</div>
+                    <div className="text-xs opacity-90">Use an invite code</div>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 opacity-70 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
+              <Link
+                href="/protected/create-family"
+                className="group flex items-center justify-between p-4 rounded-xl border-2 border-amber-200 bg-white text-amber-900 hover:bg-amber-50 hover:border-amber-300 transition-all duration-200"
+              >
+                <div className="flex items-center gap-3">
+                  <Plus className="h-5 w-5" />
+                  <div>
+                    <div className="font-semibold">Create a Family</div>
+                    <div className="text-xs text-amber-700/80">Start your family space</div>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-amber-600 opacity-70 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Link
+                href="/protected/dashboard"
+                className="group flex items-center justify-between p-4 rounded-xl bg-orange-500 text-white hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5" />
+                  <div>
+                    <div className="font-semibold">Go to Family Dashboard</div>
+                    <div className="text-xs opacity-90">See your family's latest moments</div>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 opacity-70 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              
+              <div className="text-center pt-4">
+                <p className="text-sm text-amber-700/60">
+                  You're connected to <span className="font-medium text-amber-800">{familyMemberships.length}</span> family group
+                  {familyMemberships.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

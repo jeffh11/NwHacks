@@ -39,6 +39,17 @@ export default async function createFamily(familyName: string, familyDescription
 		throw error;
 	}
 
+	const { error: error2 } = await sb
+		.from("family_members")
+		.insert({
+			family: joinCode,
+			user: user.data.user.id,
+		});
+
+	if (error2) {
+		throw error2;
+	}
+
 	redirect("/protected/create-family/success?name=" + encodeURIComponent(familyName) + "&code=" + encodeURIComponent(joinCode));
 }
 
