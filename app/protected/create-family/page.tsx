@@ -1,8 +1,15 @@
+'use client';
+
+import { useState } from "react";
 import Card from "../../components/card";
 import Button from "../../components/button";
 import Link from "next/link";
+import createFamily from "@/utils/createFamily";
 
 export default function CreateFamilyPage() {
+  const [familyName, setFamilyName] = useState("");
+  const [familyDescription, setFamilyDescription] = useState("");
+
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
       <Card>
@@ -34,6 +41,8 @@ export default function CreateFamilyPage() {
             <input
               className="w-full border-2 border-gray-200 rounded-lg p-3 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-20 transition"
               placeholder="e.g., The Smiths"
+              value={familyName}
+              onChange={(e) => setFamilyName(e.target.value)}
             />
           </div>
 
@@ -45,12 +54,14 @@ export default function CreateFamilyPage() {
               className="w-full border-2 border-gray-200 rounded-lg p-3 focus:outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)] focus:ring-opacity-20 transition resize-none"
               placeholder="A bit about your family..."
               rows={3}
+              value={familyDescription}
+              onChange={(e) => setFamilyDescription(e.target.value)}
             />
           </div>
         </div>
 
         {/* Button */}
-        <Button text="Create Family" />
+        <Button text="Create Family" onClick={() => void createFamily(familyName, familyDescription)} />
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-5">
