@@ -14,8 +14,10 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="w-full max-w-5xl p-6">{children}</div>
+    <main className="min-h-screen flex flex-col items-center bg-[var(--bg-soft)]">
+      <div className="w-full max-w-xl p-8 rounded-2xl shadow-lg bg-white border border-gray-100 mt-8 mb-8">
+        {children}
+      </div>
     </main>
   );
 }

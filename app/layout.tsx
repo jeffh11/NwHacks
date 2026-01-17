@@ -13,7 +13,6 @@ export const metadata: Metadata = {
     "A private, family-first space for staying connected across distance.",
 };
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   display: "swap",
@@ -27,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${geistSans.className} antialiased bg-[var(--bg-soft)] text-gray-900 text-lg`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

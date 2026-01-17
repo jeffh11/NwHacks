@@ -13,42 +13,41 @@ export default async function ProtectedPage() {
   const hasFamily = familyMemberships && familyMemberships.length > 0;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Welcome</h1>
-
+    <div className="flex flex-col gap-8 items-center justify-center p-6">
+      <h1 className="text-3xl font-extrabold text-[var(--primary)] mb-2">
+        Welcome
+      </h1>
       {!hasFamily ? (
         <>
-          <p className="text-muted-foreground">
-            You’re not part of a family yet.
+          <p className="text-lg text-gray-700 mb-4 text-center">
+            You’re not part of a family yet. Join or create a family to get
+            started.
           </p>
-
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 w-full max-w-xs">
             <Link
               href="/protected/join-family"
-              className="px-4 py-2 rounded bg-primary text-primary-foreground"
+              className="px-6 py-4 rounded-xl bg-[var(--primary)] text-white text-lg font-semibold text-center hover:opacity-90 transition shadow-md"
             >
-              Join a family
+              Join a Family
             </Link>
-
             <Link
               href="/protected/create-family"
-              className="px-4 py-2 rounded border"
+              className="px-6 py-4 rounded-xl border-2 border-gray-300 text-[var(--primary)] text-lg font-semibold text-center hover:bg-gray-50 transition"
             >
-              Create a family
+              Create a Family
             </Link>
           </div>
         </>
       ) : (
         <>
-          <p className="text-muted-foreground">
+          <p className="text-lg text-gray-700 mb-4 text-center">
             You’re connected to your family.
           </p>
-
           <Link
             href="/protected/dashboard"
-            className="px-4 py-2 rounded bg-primary text-primary-foreground w-fit"
+            className="px-6 py-4 rounded-xl bg-[var(--primary)] text-white text-lg font-semibold text-center hover:opacity-90 transition shadow-md w-full max-w-xs"
           >
-            Go to family dashboard
+            Go to Family Dashboard
           </Link>
         </>
       )}
