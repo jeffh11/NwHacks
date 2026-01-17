@@ -35,18 +35,11 @@ export default function JoinFamilyPage() {
                       <Users className="h-10 w-10 text-white" />
                     </div>
                   </div>
-                  <div className="absolute -top-1 -right-1 bg-white rounded-full p-1 shadow-sm">
-                    <Key className="h-4 w-4 text-orange-600" />
-                  </div>
                 </div>
 
                 <h1 className="text-3xl font-bold text-amber-900 mb-3">
                   Join Your Family
                 </h1>
-                <p className="text-amber-700/80 text-sm leading-relaxed">
-                  Enter the invite code shared by a family member. 
-                  Each code is unique and keeps your space private.
-                </p>
               </div>
 
               {/* Form Section */}
@@ -59,34 +52,13 @@ export default function JoinFamilyPage() {
                   <div className="relative">
                     <input
                       className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-amber-200 bg-white focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 font-bold text-lg tracking-widest text-center"
-                      placeholder="ABC-DEF-GHI"
+                      placeholder="ABCDE"
                       aria-label="Family Code"
                       required
                       autoComplete="off"
-                      autoCapitalize="characters"
+                      maxLength={5}
                     />
                     <Key className="absolute left-3 top-3.5 h-5 w-5 text-amber-400" />
-                  </div>
-                  <p className="text-xs text-amber-600/70">
-                    Codes are case-insensitive and include dashes
-                  </p>
-                </div>
-
-                {/* Features Preview */}
-                <div className="bg-amber-50 rounded-xl p-4 space-y-3">
-                  <p className="text-sm font-medium text-amber-900">Why join a family?</p>
-                  <div className="space-y-2">
-                    {[
-                      "Share private moments securely",
-                      "Stay connected with loved ones",
-                      "Gentle interactions, no social pressure",
-                      "Your data stays private"
-                    ].map((feature, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <Heart className="h-3 w-3 text-orange-400 fill-current" />
-                        <span className="text-xs text-amber-700">{feature}</span>
-                      </div>
-                    ))}
                   </div>
                 </div>
 

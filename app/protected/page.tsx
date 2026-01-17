@@ -28,7 +28,7 @@ export default async function ProtectedPage() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-amber-900 mb-2">
-            {hasFamily ? "Welcome Back!" : "Welcome to Kinfolk"}
+            {hasFamily ? "Welcome Back!" : "Welcome to Huddle!"}
           </h1>
           <p className="text-amber-700/80 text-sm">
             {hasFamily 
@@ -78,7 +78,7 @@ export default async function ProtectedPage() {
                   <Users className="h-5 w-5" />
                   <div>
                     <div className="font-semibold">Go to Family Dashboard</div>
-                    <div className="text-xs opacity-90">See your family's latest moments</div>
+                    <div className="text-xs opacity-90">See your family&apos;s latest moments</div>
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 opacity-70 group-hover:translate-x-1 transition-transform" />

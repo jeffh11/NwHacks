@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
 import { Users, LogOut, Home } from "lucide-react";
 import { Suspense } from "react";
 
@@ -37,7 +36,7 @@ export default function ProtectedLayout({
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
               <Users className="h-4 w-4 text-orange-600" />
             </div>
-            <h1 className="text-lg font-semibold text-amber-900">Kinfolk</h1>
+            <h1 className="text-lg font-semibold text-amber-900">Huddle</h1>
           </div>
           
           <div className="flex items-center gap-4">
