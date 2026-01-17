@@ -1,62 +1,84 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Card from "../../components/card";
 import Button from "../../components/button";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 export default function JoinFamilyPage() {
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleJoin = async () => {
+    setError("");
+
+    const formattedCode = code.toUpperCase().trim();
+
+    // 1️⃣ Look up family by ID (join code)
+    const { data: family, error: familyError } = await supabase
+      .from("families")
+      .select("id")
+      .eq("id", formattedCode)
+      .single();
+
+    if (familyError || !family) {
+      setError("Family code not found.");
+      return;
+    }
+
+    // 2️⃣ Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setError("You must be logged in.");
+      return;
+    }
+
+    // 3️⃣ Insert membership
+    const { error: joinError } = await supabase
+      .from("family_members")
+      .insert({
+        family_id: family.id, // same string code
+        user_id: user.id,
+        role_in_family: "member",
+      });
+
+    if (joinError) {
+      setError("You are already in this family.");
+      return;
+    }
+
+    // 4️⃣ Success
+    router.push("/protected");
+  };
+
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 bg-[var(--bg-soft)]">
+    <main className="min-h-screen flex items-center justify-center px-4">
       <Card>
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-gradient-to-br from-[var(--accent)] via-yellow-100 to-pink-100 rounded-full mb-4 shadow-md">
-            <svg
-              className="w-10 h-10 text-[var(--primary)]"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-extrabold text-[var(--primary)] mb-3">
-            Join Your Family
-          </h1>
-          <p className="text-gray-700 text-lg">
-            Enter your family code below. If you need help, ask a family member!
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold mb-2">Join a Family</h1>
+        <p className="text-gray-500 mb-4">
+          Enter the family code shared with you.
+        </p>
 
-        {/* Input Section */}
-        <div className="mb-8">
-          <label className="block text-lg font-semibold text-gray-800 mb-2">
-            Family Code
-          </label>
-          <input
-            className="w-full border-2 border-[var(--accent)] bg-yellow-50 rounded-xl p-4 mb-2 text-center text-2xl font-bold tracking-widest focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-200 focus:ring-opacity-40 transition"
-            placeholder="ABC-DEF-GHI"
-            aria-label="Family Code"
-          />
-          <p className="text-sm text-gray-500 text-center">
-            Ask a family member to share their code with you.
-          </p>
-        </div>
+        <input
+          value={code}
+          onChange={(e) =>
+            setCode(e.target.value.toUpperCase().trim())
+          }
+          className="w-full border rounded-xl p-2 mb-3 text-center tracking-widest"
+          placeholder="FAMILY123"
+        />
 
-        {/* Button */}
-        <Button text="Join Family" />
+        {error && (
+          <p className="text-red-500 text-sm mb-2">{error}</p>
+        )}
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-8 bg-gradient-to-r from-[var(--accent)]/30 via-yellow-100/40 to-pink-100/30 rounded-lg py-2">
-          <div className="flex-1 h-px bg-pink-200" />
-          <span className="text-base text-pink-500 font-semibold">or</span>
-          <div className="flex-1 h-px bg-pink-200" />
-        </div>
-
-        {/* Alternative Action */}
-        <Link
-          href="/protected/create-family"
-          className="block w-full text-center px-4 py-3 rounded-xl border-2 border-pink-200 text-pink-700 text-lg font-semibold hover:bg-pink-50 transition"
-        >
-          Create a New Family
-        </Link>
+        <Button text="Join Family" onClick={handleJoin} />
       </Card>
     </main>
   );
