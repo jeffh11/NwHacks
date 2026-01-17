@@ -1,80 +1,29 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Card from "../../components/card";
 import Button from "../../components/button";
-import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { Users, Heart, ArrowLeft, Key, ArrowRight } from "lucide-react";
 
 export default function JoinFamilyPage() {
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const supabase = createClient();
-
-  const handleJoin = async () => {
-    setError("");
-
-    const formattedCode = code.toUpperCase().trim();
-
-    // 1️⃣ Look up family by ID (join code)
-    const { data: family, error: familyError } = await supabase
-      .from("families")
-      .select("id")
-      .eq("id", formattedCode)
-      .single();
-
-    if (familyError || !family) {
-      setError("Family code not found.");
-      return;
-    }
-
-    // 2️⃣ Get current user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setError("You must be logged in.");
-      return;
-    }
-
-    // 3️⃣ Insert membership
-    const { error: joinError } = await supabase
-      .from("family_members")
-      .insert({
-        family_id: family.id, // same string code
-        user_id: user.id,
-        role_in_family: "member",
-      });
-
-    if (joinError) {
-      setError("You are already in this family.");
-      return;
-    }
-
-    // 4️⃣ Success
-    router.push("/protected");
-  };
-
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <Card>
-        <h1 className="text-2xl font-semibold mb-2">Join a Family</h1>
-        <p className="text-gray-500 mb-4">
-          Enter the family code shared with you.
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+      {/* Floating Back Button */}
+      <Link
+        href="/protected"
+        className="absolute top-6 left-6 flex items-center gap-2 text-amber-700 hover:text-orange-600 transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span className="text-sm font-medium">Back</span>
+      </Link>
 
-        <input
-          value={code}
-          onChange={(e) =>
-            setCode(e.target.value.toUpperCase().trim())
-          }
-          className="w-full border rounded-xl p-2 mb-3 text-center tracking-widest"
-          placeholder="FAMILY123"
-        />
+      {/* Main Content */}
+      <main className="min-h-screen flex items-center justify-center px-4 py-12">
+        {/* Wrapper div for Card styling */}
+        <div className="w-full max-w-md relative overflow-hidden">
+          <Card>
+            {/* Decorative Background Elements */}
+            <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-orange-100/50 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-amber-100/50 blur-2xl pointer-events-none" />
 
-<<<<<<< HEAD
             {/* Content wrapper with z-index */}
             <div className="relative z-10">
               {/* Header Section */}
@@ -137,14 +86,5 @@ export default function JoinFamilyPage() {
         </div>
       </main>
     </div>
-=======
-        {error && (
-          <p className="text-red-500 text-sm mb-2">{error}</p>
-        )}
-
-        <Button text="Join Family" onClick={handleJoin} />
-      </Card>
-    </main>
->>>>>>> 0ce66935e070bd1bf252770bea83f5a0e7e1553d
   );
 }
