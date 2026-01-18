@@ -17,6 +17,23 @@ type CommentResponse = {
   comment_user: string;
 };
 
+type DeletePostInput = {
+  postId: string;
+};
+
+const MEDIA_PUBLIC_PREFIX = "/storage/v1/object/public/media/";
+
+const getStoragePathFromUrl = (mediaUrl: string) => {
+  try {
+    const url = new URL(mediaUrl);
+    const idx = url.pathname.indexOf(MEDIA_PUBLIC_PREFIX);
+    if (idx === -1) return null;
+    return url.pathname.slice(idx + MEDIA_PUBLIC_PREFIX.length);
+  } catch {
+    return null;
+  }
+};
+
 // --- ACTIONS ---
 
 /**
@@ -84,6 +101,56 @@ export async function toggleLike(postId: number, isCurrentlyLiked: boolean) {
       });
 
     if (error) throw new Error(error.message);
+  }
+
+  revalidatePath("/protected/feed");
+}
+
+/**
+ * Deletes a post and its related data
+ */
+export async function deletePost({ postId }: DeletePostInput) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+
+  const { data: post, error: postError } = await supabase
+    .from("posts")
+    .select("id, post_user, media_url")
+    .eq("id", postId)
+    .single();
+
+  if (postError || !post) {
+    throw new Error(postError?.message ?? "Post not found.");
+  }
+
+  if (post.post_user !== user.id) {
+    throw new Error("You do not have permission to delete this post.");
+  }
+
+  const { error: postDeleteError } = await supabase
+    .from("posts")
+    .delete()
+    .eq("id", postId);
+
+  if (postDeleteError) {
+    throw new Error(postDeleteError.message);
+  }
+
+  if (post.media_url) {
+    const storagePath = getStoragePathFromUrl(post.media_url);
+    if (storagePath) {
+      const { error: storageError } = await supabase.storage
+        .from("media")
+        .remove([storagePath]);
+
+      if (storageError) {
+        console.warn("Failed to delete media:", storageError.message);
+      }
+    }
   }
 
   revalidatePath("/protected/feed");

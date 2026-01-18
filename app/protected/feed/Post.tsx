@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from "react";
-import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
-import { createComment, toggleLike } from "@/app/protected/feed/actions";
+import { useRouter } from "next/navigation";
+import { MessageCircle, Heart, Share2, Clock, Trash2 } from "lucide-react";
+import { createComment, toggleLike, deletePost } from "@/app/protected/feed/actions";
 
 interface PostProps {
     post: {
@@ -56,6 +57,9 @@ export default function Post({
     const [commentError, setCommentError] = useState<string | null>(null);
     const [comments, setComments] = useState<CommentData[]>(initialComments);
     const [isSubmitting, startTransition] = useTransition();
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const router = useRouter();
 
     // 2. Updated toggleLike with Database persistence
     const handleLikeToggle = async () => {
@@ -115,6 +119,25 @@ export default function Post({
             }
         });
     };
+
+    const handleDeletePost = () => {
+        if (isDeleting) return;
+        const confirmed = window.confirm("Delete this post? This cannot be undone.");
+        if (!confirmed) return;
+
+        startDeleteTransition(async () => {
+            try {
+                await deletePost({ postId: post.id });
+                setDeleteError(null);
+                router.refresh();
+            } catch (error) {
+                const message = error instanceof Error ? error.message : "Failed to delete post.";
+                setDeleteError(message);
+            }
+        });
+    };
+
+    const canDelete = currentUser.id === post.post_user;
 
     return (
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-7 transition-all hover:shadow-md">
@@ -188,10 +211,26 @@ export default function Post({
                         <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
                     </button>
                 </div>
-                <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
-                    <Share2 size={20} />
-                </button>
+                <div className="flex items-center gap-1">
+                    {canDelete && (
+                        <button
+                            onClick={handleDeletePost}
+                            disabled={isDeleting}
+                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            aria-label="Delete post"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    )}
+                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+                        <Share2 size={20} />
+                    </button>
+                </div>
             </div>
+
+            {deleteError && (
+                <p className="mt-3 text-xs text-rose-500 font-semibold">{deleteError}</p>
+            )}
 
             {/* Comment Section */}
             {showComments && (
