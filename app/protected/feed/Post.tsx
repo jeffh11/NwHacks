@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client"; // Use corrected path
+import { createClient } from "@/lib/supabase/client"; 
 import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
 
 export default function Post({ post, author, currentUserId }: { post: any, author: any, currentUserId: string }) {
@@ -10,35 +10,69 @@ export default function Post({ post, author, currentUserId }: { post: any, autho
     const supabase = createClient();
 
     useEffect(() => {
+        if (!post?.id || !currentUserId) return;
+
         const fetchLikes = async () => {
-            // Get total count
-            const { count } = await supabase
+            // 1. Fetch total count for this post
+            const { count, error: countError } = await supabase
                 .from('likes')
                 .select('*', { count: 'exact', head: true })
                 .eq('post_id', post.id);
-            setLikesCount(count || 0);
+            
+            if (!countError) setLikesCount(count || 0);
 
-            // Check if user has liked it
-            const { data } = await supabase
+            // 2. Check if the current user has already liked this post
+            const { data, error: fetchError } = await supabase
                 .from('likes')
                 .select('id')
                 .eq('post_id', post.id)
                 .eq('user_id', currentUserId)
                 .maybeSingle();
-            if (data) setIsLiked(true);
+            
+            if (data && !fetchError) setIsLiked(true);
         };
+
         fetchLikes();
     }, [post.id, currentUserId, supabase]);
 
     const toggleLike = async () => {
+        if (!currentUserId) return;
+
         const previouslyLiked = isLiked;
+        
+        // Optimistic UI Update: Change the UI immediately for a fast feel
         setIsLiked(!previouslyLiked);
         setLikesCount(prev => previouslyLiked ? prev - 1 : prev + 1);
 
         if (previouslyLiked) {
-            await supabase.from('likes').delete().eq('post_id', post.id).eq('user_id', currentUserId);
+            // Remove the like from the database
+            const { error } = await supabase
+                .from('likes')
+                .delete()
+                .eq('post_id', post.id)
+                .eq('user_id', currentUserId);
+            
+            if (error) {
+                console.error("Unlike error:", error);
+                // Rollback if DB fails
+                setIsLiked(true);
+                setLikesCount(prev => prev + 1);
+            }
         } else {
-            await supabase.from('likes').insert({ post_id: post.id, user_id: currentUserId });
+            // Insert the like into the database
+            const { error } = await supabase
+                .from('likes')
+                .insert({ 
+                    post_id: post.id, 
+                    user_id: currentUserId 
+                });
+
+            if (error) {
+                console.error("Like error:", error);
+                // Rollback if DB fails
+                setIsLiked(false);
+                setLikesCount(prev => prev - 1);
+            }
         }
     };
 
@@ -58,12 +92,12 @@ export default function Post({ post, author, currentUserId }: { post: any, autho
                 </div>
             </div>
 
-            {/* Post Body - Text */}
+            {/* Post Body */}
             <div className="text-slate-800 text-xl font-medium mb-4 leading-relaxed px-1">
                 {post.text || post.content}
             </div>
 
-            {/* RESTORED: Image Rendering */}
+            {/* Image Rendering */}
             {(post.image_url || post.post_image) && (
                 <div className="mb-6 rounded-2xl overflow-hidden border border-slate-100">
                     <img 
@@ -83,7 +117,7 @@ export default function Post({ post, author, currentUserId }: { post: any, autho
                             isLiked ? "bg-rose-50 text-rose-500" : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
                         }`}
                     >
-                        <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} /> 
+                        <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110 transition-transform" : ""} /> 
                         {likesCount} {likesCount === 1 ? 'like' : 'likes'}
                     </button>
                     <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-bold text-sm">
