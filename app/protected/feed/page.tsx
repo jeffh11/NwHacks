@@ -5,6 +5,8 @@ import FamilySidebar from "../../components/family-sidebar";
 import Link from "next/link";
 import Post from "./Post";
 import QuestionOfTheDay from "./question-of-the-day";
+import { getOrCreateFamilyQOTD } from "../../../utils/getqotd";
+
 
 export default async function FeedPage() {
     const supabase = await createClient();
@@ -99,16 +101,16 @@ export default async function FeedPage() {
     today.setHours(0, 0, 0, 0);
     const todayDate = today.toISOString().split("T")[0];
 
-    // Fetch today's question (or fallback)
-    const { data: qotdRow } = await supabase
-    .from("family_daily_questions")
-    .select("question")
-    .eq("family_id", familyIds[0])
-    .eq("created_at", todayDate)
-    .single();
+    // Fetch today's question
 
-    const qotdQuestion =
-    qotdRow?.question ?? "What is one thing that made you smile today?";
+    const qotdRow = await getOrCreateFamilyQOTD(familyIds[0]);
+
+    if (!qotdRow) {
+    throw new Error("Failed to load Question of the Day");
+    }
+
+    const qotdQuestion = qotdRow.question;
+
 
     const { data: qotdResponses } = await supabase
     .from("family_question_responses")
