@@ -106,15 +106,15 @@ export default async function FeedPage() {
     const qotdRow = await getOrCreateFamilyQOTD(familyIds[0]);
 
     if (!qotdRow) {
-    throw new Error("Failed to load Question of the Day");
+        throw new Error("Failed to load Question of the Day");
     }
 
     const qotdQuestion = qotdRow.question;
 
 
     const { data: qotdResponses } = await supabase
-    .from("family_question_responses")
-    .select(`
+        .from("family_question_responses")
+        .select(`
         id,
         user_id,
         response,
@@ -125,9 +125,9 @@ export default async function FeedPage() {
         avatar_url
         )
     `)
-    .eq("family_id", familyIds[0])
-    .eq("response_date", todayDate)
-    .order("created_at", { ascending: true });
+        .eq("family_id", familyIds[0])
+        .eq("response_date", todayDate)
+        .order("created_at", { ascending: true });
 
 
 
@@ -151,21 +151,21 @@ export default async function FeedPage() {
                     <header className="bg-white rounded-xl shadow p-6 flex justify-between items-center mb-4 gap-4">
                         <div className="flex-1 min-w-0">
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-                            {familyData?.name + " Feed" || "Family Feed"}
+                                {familyData?.name + " Feed" || "Family Feed"}
                             </h1>
 
                             <p className="text-slate-500 font-medium italic">
-                            {familyData?.description || "Your latest family moments"}
+                                {familyData?.description || "Your latest family moments"}
                             </p>
 
                             {/* 🔑 JOIN CODE */}
                             <div className="mt-2 inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1">
-                            <span className="text-xs font-semibold text-slate-500 uppercase">
-                                Join Code
-                            </span>
-                            <span className="font-mono text-sm font-bold text-slate-800 tracking-wider">
-                                {familyIds[0]}
-                            </span>
+                                <span className="text-xs font-semibold text-slate-500 uppercase">
+                                    Join Code
+                                </span>
+                                <span className="font-mono text-sm font-bold text-slate-800 tracking-wider">
+                                    {familyIds[0]}
+                                </span>
                             </div>
                         </div>
 
@@ -181,13 +181,13 @@ export default async function FeedPage() {
                                 </Link>
                             )}
                             <Link
-                            href="/protected/create-post"
-                            className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95 flex-shrink-0"
+                                href="/protected/create-post"
+                                className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95 flex-shrink-0"
                             >
-                            <Plus size={24} />
+                                <Plus size={24} />
                             </Link>
                         </div>
-                        </header>
+                    </header>
 
 
                     {/* GALLERY PREVIEW */}
