@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Users, LogOut, Home } from "lucide-react";
+import { LogOut, Home } from "lucide-react";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button"; //
-import isInFamily from "@/utils/isInFamily";
 import HeaderUserAvatar from "./header-user-avatar";
+import Link from "next/link";
 
 async function AuthCheck({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
-  
+
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) {
@@ -34,31 +34,27 @@ export default function ProtectedLayout({
       */}
       <header className="sticky top-0 z-50 w-full border-b border-amber-200 bg-white/95 backdrop-blur-sm shadow-sm h-24 flex items-center">
         <div className="flex items-center justify-between px-8 w-full max-w-6xl mx-auto">
-          
+
           {/* Bigger Logo Section */}
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 shadow-sm">
-              <Users className="h-7 w-7 text-orange-600" />
-            </div>
-            <h1 className="text-3xl font-black tracking-tighter text-amber-900">Huddle</h1>
+            <Suspense fallback={<div className="h-12 w-12 rounded-full bg-slate-200 animate-pulse" />}>
+              <HeaderUserAvatar />
+            </Suspense>
+            <Link href="/protected"><h1 className="text-3xl font-black tracking-tighter text-amber-900 hover:scale-105 transition-all duration-300">Huddle</h1></Link>
           </div>
-          
+
           {/* Bigger Navigation Actions */}
           <div className="flex items-center gap-8">
             <a href="/protected" className="hover:scale-110 transition-transform">
               <Home className="h-8 w-8 text-amber-800" />
             </a>
-            
-            <Suspense fallback={<div className="h-10 w-10 rounded-full bg-slate-200 animate-pulse" />}>
-              <HeaderUserAvatar />
-            </Suspense>
-            
+
             <form action="/auth/logout" method="POST">
               {/* Using the Button component from your UI library with size="lg" */}
-              <Button 
-                variant="outline" 
-                size="lg" 
-                type="submit" 
+              <Button
+                variant="outline"
+                size="lg"
+                type="submit"
                 className="flex items-center gap-3 border-2 border-amber-200 text-amber-800 font-bold hover:bg-amber-50 rounded-xl"
               >
                 <LogOut className="h-5 w-5" />
