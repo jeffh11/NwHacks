@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import MemoryMatchBoard from "./memory-match-board";
 import { submitGameSession } from "./actions";
-import { Button } from "@/components/ui/button";
-import { Trophy, CheckCircle2 } from "lucide-react";
+import { Trophy, CheckCircle2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function GameClient() {
@@ -18,31 +17,37 @@ export default function GameClient() {
   const router = useRouter();
 
   const handleGameComplete = (durationMs: number, mistakes: number) => {
-    const score = durationMs + mistakes * 1500;
+    // Calculate score (higher is better)
+    const baseScore = 100000;
+    const timePenalty = durationMs;
+    const mistakePenalty = mistakes * 1500;
+    const score = Math.max(0, baseScore - timePenalty - mistakePenalty);
+    
     setGameResult({ durationMs, mistakes, score });
     setIsSubmitted(false);
   };
 
-  const handleSubmitScore = () => {
-    if (!gameResult) return;
-
-    startTransition(async () => {
-      try {
-        await submitGameSession({
-          durationMs: gameResult.durationMs,
-          mistakes: gameResult.mistakes,
-        });
-        setIsSubmitted(true);
-        // Refresh the page to update leaderboard
-        setTimeout(() => {
-          router.refresh();
-        }, 500);
-      } catch (error) {
-        console.error("Failed to submit score:", error);
-        alert("Failed to submit score. Please try again.");
-      }
-    });
-  };
+  // Auto-submit score when game completes
+  useEffect(() => {
+    if (gameResult && !isSubmitted && !isSubmitting) {
+      startTransition(async () => {
+        try {
+          await submitGameSession({
+            durationMs: gameResult.durationMs,
+            mistakes: gameResult.mistakes,
+          });
+          setIsSubmitted(true);
+          // Refresh the page to update leaderboard
+          setTimeout(() => {
+            router.refresh();
+          }, 500);
+        } catch (error) {
+          console.error("Failed to submit score:", error);
+          // Don't show alert, just log the error
+        }
+      });
+    }
+  }, [gameResult, isSubmitted, isSubmitting, router]);
 
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
@@ -86,22 +91,21 @@ export default function GameClient() {
             </div>
           </div>
 
-          {isSubmitted ? (
+          {isSubmitting ? (
+            <div className="flex items-center justify-center gap-2 p-4 bg-amber-100 rounded-lg border-2 border-amber-300">
+              <Loader2 className="h-5 w-5 text-amber-600 animate-spin" />
+              <span className="font-bold text-amber-800">
+                Submitting score...
+              </span>
+            </div>
+          ) : isSubmitted ? (
             <div className="flex items-center justify-center gap-2 p-4 bg-green-100 rounded-lg border-2 border-green-300">
               <CheckCircle2 className="h-5 w-5 text-green-600" />
               <span className="font-bold text-green-800">
                 Score submitted! Check the leaderboard.
               </span>
             </div>
-          ) : (
-            <Button
-              onClick={handleSubmitScore}
-              disabled={isSubmitting}
-              className="w-full h-12 text-lg font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Score"}
-            </Button>
-          )}
+          ) : null}
         </div>
       )}
     </div>

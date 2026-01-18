@@ -28,7 +28,7 @@ export default function MemoryMatchBoard({ onGameComplete }: MemoryMatchBoardPro
   const initializeGame = useCallback(() => {
     const pairs = [1, 2, 3, 4, 5, 6, 7, 8];
     const tileValues = [...pairs, ...pairs];
-    
+
     // Shuffle the tiles
     for (let i = tileValues.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -133,46 +133,46 @@ export default function MemoryMatchBoard({ onGameComplete }: MemoryMatchBoardPro
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-sm mx-auto">
       {/* Game Stats */}
-      <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-xl border border-amber-200 shadow-sm">
+      <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-xl border border-amber-200 shadow-sm">
         <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-amber-600" />
-          <span className="text-lg font-bold text-amber-900">
+          <Clock className="h-4 w-4 text-amber-600" />
+          <span className="text-base font-bold text-amber-900">
             {formatTime(duration)}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <XCircle className="h-5 w-5 text-red-500" />
-          <span className="text-lg font-bold text-slate-700">
-            Mistakes: {mistakes}
+          <XCircle className="h-4 w-4 text-red-500" />
+          <span className="text-base font-bold text-slate-700">
+            {mistakes}
           </span>
         </div>
         {isGameComplete && (
           <div className="flex items-center gap-2 text-green-600">
-            <Trophy className="h-5 w-5" />
-            <span className="text-lg font-bold">Complete!</span>
+            <Trophy className="h-4 w-4" />
+            <span className="text-base font-bold">Done!</span>
           </div>
         )}
       </div>
 
       {/* Game Board */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         {tiles.map((tile) => (
           <button
             key={tile.id}
             onClick={() => handleTileClick(tile.id)}
             disabled={isProcessing || tile.isFlipped || tile.isMatched}
             className={`
-              aspect-square rounded-xl border-2 transition-all duration-300
+              aspect-square rounded-lg border-2 transition-all duration-300
               ${tile.isMatched
                 ? "bg-green-100 border-green-300 cursor-default"
                 : tile.isFlipped
-                ? "bg-amber-100 border-amber-400 cursor-default"
-                : "bg-white border-amber-200 hover:border-amber-400 hover:bg-amber-50 active:scale-95"
+                  ? "bg-amber-100 border-amber-400 cursor-default"
+                  : "bg-white border-amber-200 hover:border-amber-400 hover:bg-amber-50 active:scale-95"
               }
               ${isProcessing ? "cursor-wait" : ""}
-              flex items-center justify-center text-3xl font-black
+              flex items-center justify-center text-2xl font-black
               ${tile.isFlipped || tile.isMatched ? "text-amber-900" : "text-transparent"}
             `}
           >
@@ -184,7 +184,7 @@ export default function MemoryMatchBoard({ onGameComplete }: MemoryMatchBoardPro
       {/* Reset Button */}
       <button
         onClick={initializeGame}
-        className="w-full py-3 px-4 rounded-xl bg-amber-100 border-2 border-amber-300 text-amber-900 font-bold hover:bg-amber-200 transition-all active:scale-95"
+        className="w-full py-2 px-4 rounded-xl bg-amber-100 border-2 border-amber-300 text-amber-900 font-bold hover:bg-amber-200 transition-all active:scale-95 text-sm"
       >
         {isGameComplete ? "Play Again" : "Reset Game"}
       </button>
