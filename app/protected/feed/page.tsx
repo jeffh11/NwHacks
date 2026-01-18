@@ -42,6 +42,16 @@ export default async function FeedPage() {
         .in("post_family", familyIds)
         .order("created_at", { ascending: false });
 
+    const postIds = posts?.map((post) => post.id) ?? [];
+
+    const { data: comments } = postIds.length > 0
+        ? await supabase
+            .from("comments")
+            .select("id, content, created_at, comment_user, comment_post")
+            .in("comment_post", postIds)
+            .order("created_at", { ascending: true })
+        : { data: [] };
+
     // 4. Helper to find a name with a fallback
     const getAuthor = (userId: string) => {
         const found = profiles.find(p => p.supabase_id === userId);
@@ -51,6 +61,33 @@ export default async function FeedPage() {
             initial: found.firstname[0]
         };
     };
+
+    const currentUser = {
+        id: user.id,
+        ...getAuthor(user.id)
+    };
+
+    const commentsByPostId = new Map<string, {
+        id: string;
+        text: string;
+        created_at: string;
+        comment_user: string;
+        comment_post: string;
+        author: {
+            name: string;
+            initial: string;
+        };
+    }[]>();
+
+    (comments ?? []).forEach((comment) => {
+        const entry = {
+            ...comment,
+            author: getAuthor(comment.comment_user)
+        };
+        const list = commentsByPostId.get(comment.comment_post) ?? [];
+        list.push(entry);
+        commentsByPostId.set(comment.comment_post, list);
+    });
 
     return (
         <div className="min-h-screen bg-[#f8fafc] flex justify-center p-4 md:p-8">
@@ -78,12 +115,15 @@ export default async function FeedPage() {
                     ) : (
                         posts.map((post) => {
                             const author = getAuthor(post.post_user);
+                            const postComments = commentsByPostId.get(post.id) ?? [];
                             // Pass data to the Client Component
                             return (
                                 <Post
                                     key={post.id}
                                     post={post}
                                     author={author}
+                                    comments={postComments}
+                                    currentUser={currentUser}
                                 />
                             );
                         })
