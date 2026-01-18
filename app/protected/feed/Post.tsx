@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MessageCircle, Heart, Share2, Clock, Trash2 } from "lucide-react";
+import { MessageCircle, Heart, Share2, Clock, Trash2, Send } from "lucide-react";
 import { createComment, toggleLike, deletePost } from "@/app/protected/feed/actions";
 
 interface PostProps {
@@ -24,7 +24,6 @@ interface PostProps {
         name: string;
         initial: string;
     };
-    // New props to handle persistent state from the server
     initialLikesCount: number;
     initialIsLiked: boolean;
 }
@@ -48,10 +47,8 @@ export default function Post({
     initialLikesCount,
     initialIsLiked 
 }: PostProps) {
-    // 1. Initialize state from server-side props
     const [isLiked, setIsLiked] = useState(initialIsLiked);
     const [likesCount, setLikesCount] = useState(initialLikesCount);
-
     const [showComments, setShowComments] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [commentError, setCommentError] = useState<string | null>(null);
@@ -61,19 +58,14 @@ export default function Post({
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const router = useRouter();
 
-    // 2. Updated toggleLike with Database persistence
     const handleLikeToggle = async () => {
-        // Optimistic UI: Update immediately for a snappy feel
         const nextLikedState = !isLiked;
         setIsLiked(nextLikedState);
         setLikesCount(prev => nextLikedState ? prev + 1 : prev - 1);
 
         try {
-            // Call the Server Action (Passing current isLiked state to toggle it)
-            // post.id is cast to Number because the DB uses bigint
             await toggleLike(Number(post.id), isLiked);
         } catch (error) {
-            // Rollback UI state if the database update fails
             setIsLiked(isLiked);
             setLikesCount(likesCount);
             console.error("Failed to update like:", error);
@@ -140,153 +132,152 @@ export default function Post({
     const canDelete = currentUser.id === post.post_user;
 
     return (
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-7 transition-all hover:shadow-md">
+        <div className="bg-white/80 backdrop-blur-md rounded-[3rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 transition-all hover:shadow-[0_20px_50px_rgba(249,115,22,0.1)] group">
             {/* Post Header */}
-            <div className="flex items-center gap-4 mb-6">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-white font-bold text-xl shadow-inner">
-                    {author.initial}
-                </div>
-                <div>
-                    <h3 className="font-bold text-slate-900 text-lg">{author.name}</h3>
-                    <div className="flex items-center gap-1 text-[10px] text-slate-400 uppercase font-black tracking-widest">
-                        <Clock size={12} />
-                        {new Date(post.created_at).toLocaleDateString()}
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-[1.2rem] bg-gradient-to-tr from-orange-500 to-rose-400 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-200">
+                        {author.initial}
+                    </div>
+                    <div>
+                        <h3 className="font-black text-slate-800 text-lg tracking-tight">{author.name}</h3>
+                        <div className="flex items-center gap-1.5 text-[10px] text-orange-500/60 uppercase font-black tracking-[0.15em]">
+                            <Clock size={12} strokeWidth={3} />
+                            {new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
                     </div>
                 </div>
+                
+                {canDelete && (
+                    <button
+                        onClick={handleDeletePost}
+                        disabled={isDeleting}
+                        className="p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all disabled:opacity-60"
+                        aria-label="Delete post"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                )}
             </div>
 
             {/* Post Body */}
             {post.text && (
-                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
+                <div className="text-slate-700 text-lg font-medium mb-6 leading-relaxed px-1">
                     {post.text}
                 </div>
             )}
 
-            {post.type === "image" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden border border-slate-50">
-                    <img
-                        src={post.media_url}
-                        alt="Post content"
-                        className="w-full max-h-[600px] object-contain rounded-2xl"
-                    />
-                </div>
-            )}
-
-            {post.type === "video" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden border border-slate-50">
-                    <video
-                        src={post.media_url}
-                        controls
-                        className="w-full max-h-[600px] rounded-2xl"
-                    />
+            {/* Media with "Polaroid" style border effect */}
+            {(post.type === "image" || post.type === "video") && post.media_url && (
+                <div className="mb-6 rounded-[2rem] overflow-hidden border-[8px] border-slate-50 shadow-inner group-hover:scale-[1.01] transition-transform duration-500">
+                    {post.type === "image" ? (
+                        <img
+                            src={post.media_url}
+                            alt="Post content"
+                            className="w-full max-h-[550px] object-cover"
+                        />
+                    ) : (
+                        <video
+                            src={post.media_url}
+                            controls
+                            className="w-full max-h-[550px] bg-black"
+                        />
+                    )}
                 </div>
             )}
 
             {/* Interaction Buttons */}
-            <div className="flex items-center justify-between pt-5 border-t border-slate-50">
-                <div className="flex gap-2">
+            <div className="flex items-center justify-between pt-4">
+                <div className="flex gap-3">
                     <button
                         onClick={handleLikeToggle}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl transition-all duration-300 font-black text-xs uppercase tracking-wider ${
                             isLiked
-                                ? "bg-rose-50 text-rose-500"
-                                : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
+                                ? "bg-rose-500 text-white shadow-md shadow-rose-200"
+                                : "bg-slate-50 text-slate-500 hover:bg-orange-100 hover:text-orange-600"
                         }`}
                     >
                         <Heart
-                            size={20}
+                            size={18}
                             fill={isLiked ? "currentColor" : "none"}
-                            className={isLiked ? "scale-110 transition-transform" : ""}
+                            className={isLiked ? "animate-bounce" : ""}
                         />
-                        <span>
-                            {likesCount} {likesCount === 1 ? 'like' : 'likes'}
-                        </span>
+                        <span>{likesCount}</span>
                     </button>
 
                     <button
                         onClick={handleCommentToggle}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors font-bold text-sm"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-50 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all font-black text-xs uppercase tracking-wider"
                     >
-                        <MessageCircle size={20} />
-                        <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
+                        <MessageCircle size={18} />
+                        <span>{comments.length}</span>
                     </button>
                 </div>
-                <div className="flex items-center gap-1">
-                    {canDelete && (
-                        <button
-                            onClick={handleDeletePost}
-                            disabled={isDeleting}
-                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                            aria-label="Delete post"
-                        >
-                            <Trash2 size={18} />
-                        </button>
-                    )}
-                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
-                        <Share2 size={20} />
-                    </button>
-                </div>
+                
+                <button className="p-3 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-2xl transition-all">
+                    <Share2 size={20} />
+                </button>
             </div>
 
             {deleteError && (
-                <p className="mt-3 text-xs text-rose-500 font-semibold">{deleteError}</p>
+                <p className="mt-3 text-xs text-rose-500 font-bold bg-rose-50 p-2 rounded-lg text-center">{deleteError}</p>
             )}
 
             {/* Comment Section */}
             {showComments && (
-                <div className="mt-6 space-y-5">
-                    {comments.length === 0 ? (
-                        <p className="text-sm text-slate-400 font-semibold px-1">No comments yet. 💛</p>
-                    ) : (
-                        <div className="space-y-4">
-                            {comments.map((comment) => (
-                                <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-black uppercase">
+                <div className="mt-8 pt-8 border-t-2 border-slate-50 space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="max-h-60 overflow-y-auto pr-2 space-y-5 scrollbar-thin scrollbar-thumb-slate-200">
+                        {comments.length === 0 ? (
+                            <div className="text-center py-4">
+                                <p className="text-sm text-slate-400 font-bold italic">No stories here yet... be the first! ✨</p>
+                            </div>
+                        ) : (
+                            comments.map((comment) => (
+                                <div key={comment.id} className="flex gap-3 items-start group/comment">
+                                    <div className="h-10 w-10 shrink-0 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-[10px] font-black uppercase border-2 border-white shadow-sm">
                                         {comment.author.initial}
                                     </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-                                            <span className="text-slate-800">{comment.author.name}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black flex items-center gap-1">
-                                                <Clock size={10} />
+                                    <div className="bg-slate-50/80 rounded-2xl rounded-tl-none px-4 py-3 flex-1 transition-colors group-hover/comment:bg-orange-50/50">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-xs font-black text-slate-800">{comment.author.name}</span>
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
                                                 {new Date(comment.created_at).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
+                                        <p className="text-sm text-slate-600 leading-snug">
                                             {comment.content}
                                         </p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                            ))
+                        )}
+                    </div>
 
                     {/* New Comment Input */}
-                    <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-300 to-rose-300 text-white flex items-center justify-center text-xs font-black uppercase">
-                            {currentUser.initial}
-                        </div>
-                        <div className="flex-1">
-                            <textarea
-                                value={commentText}
-                                onChange={(event) => setCommentText(event.target.value)}
-                                rows={2}
-                                placeholder="Write a comment..."
-                                className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
-                            />
-                            <div className="mt-2 flex items-center justify-between">
-                                <span className="text-xs text-rose-500 font-semibold">
-                                    {commentError ?? ""}
-                                </span>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting || commentText.trim().length === 0}
-                                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
-                                >
-                                    {isSubmitting ? "Posting..." : "Post"}
-                                </button>
-                            </div>
-                        </div>
+                    <form onSubmit={handleCommentSubmit} className="relative mt-4">
+                        <textarea
+                            value={commentText}
+                            onChange={(event) => setCommentText(event.target.value)}
+                            rows={1}
+                            placeholder="Add a family note..."
+                            className="w-full resize-none rounded-2xl border-2 border-slate-50 bg-slate-50 px-5 py-4 pr-14 text-sm text-slate-700 placeholder:text-slate-400 placeholder:font-bold focus:outline-none focus:bg-white focus:border-orange-200 focus:ring-4 focus:ring-orange-50 transition-all"
+                        />
+                        <button
+                            type="submit"
+                            disabled={isSubmitting || commentText.trim().length === 0}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-orange-500 text-white disabled:bg-slate-200 disabled:text-slate-400 transition-all hover:scale-105 active:scale-95 shadow-md shadow-orange-100"
+                        >
+                            {isSubmitting ? (
+                                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <Send size={18} strokeWidth={3} />
+                            )}
+                        </button>
+                        {commentError && (
+                            <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-black uppercase tracking-tight">
+                                {commentError}
+                            </p>
+                        )}
                     </form>
                 </div>
             )}
