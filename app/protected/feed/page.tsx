@@ -23,6 +23,13 @@ export default async function FeedPage() {
     if (!memberships || memberships.length === 0) redirect("/protected");
     const familyIds = memberships.map((m) => m.family);
 
+    /* --- NEW: FETCH FAMILY NAME & DESCRIPTION --- */
+    const { data: familyData } = await supabase
+        .from("families")
+        .select("name, description")
+        .in("id", familyIds)
+        .single();
+
     /* 2️⃣ Fetch Profiles */
     const { data: membersData } = await supabase
         .from("family_members")
@@ -89,7 +96,6 @@ export default async function FeedPage() {
 
     return (
         <div className="min-h-screen bg-[#f8fafc] flex justify-center p-4 md:p-8">
-            {/* 🔥 WIDE GRID */}
             <div className="max-w-[90rem] w-full grid grid-cols-1 lg:grid-cols-4 gap-10">
 
                 {/* QUESTION OF THE DAY */}
@@ -103,16 +109,17 @@ export default async function FeedPage() {
                 <div className="lg:col-span-2 space-y-10">
                     <header className="flex justify-between items-end mb-4">
                         <div>
+                            {/* 🔥 DISPLAY FAMILY NAME */}
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-                                Family Feed
+                                {familyData?.name + " Feed" || "Family Feed"}
                             </h1>
+                            {/* 🔥 DISPLAY FAMILY DESCRIPTION */}
                             <p className="text-slate-500 font-medium italic">
-                                Your latest family moments
+                                {familyData?.description || "Your latest family moments"}
                             </p>
                         </div>
 
                         <div className="flex gap-2">
-
                             <Link
                                 href="/protected/create-post"
                                 className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95"
