@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import FamilySidebar from "../../components/family-sidebar";
 import Link from "next/link";
-import Post from "./Post"; // Import the client component you just created
+import Post from "./Post";
 
 export default async function FeedPage() {
     const supabase = await createClient();
@@ -44,13 +44,22 @@ export default async function FeedPage() {
 
     const postIds = posts?.map((post) => post.id) ?? [];
 
-    const { data: comments } = postIds.length > 0
-        ? await supabase
-            .from("comments")
-            .select("id, content, created_at, comment_user, comment_post")
-            .in("comment_post", postIds)
-            .order("created_at", { ascending: true })
-        : { data: [] };
+    // --- NEW: FETCH LIKES & COMMENTS ---
+    const [{ data: comments }, { data: likes }] = await Promise.all([
+        postIds.length > 0
+            ? supabase
+                .from("comments")
+                .select("id, content, created_at, comment_user, comment_post")
+                .in("comment_post", postIds)
+                .order("created_at", { ascending: true })
+            : Promise.resolve({ data: [] }),
+        postIds.length > 0
+            ? supabase
+                .from("likes")
+                .select("post_id, user_id")
+                .in("post_id", postIds)
+            : Promise.resolve({ data: [] })
+    ]);
 
     // 4. Helper to find a name with a fallback
     const getAuthor = (userId: string) => {
@@ -67,26 +76,16 @@ export default async function FeedPage() {
         ...getAuthor(user.id)
     };
 
-    const commentsByPostId = new Map<string, {
-        id: string;
-        content: string;
-        created_at: string;
-        comment_user: string;
-        comment_post: string;
-        author: {
-            name: string;
-            initial: string;
-        };
-    }[]>();
-
+    // Organize comments by Post ID
+    const commentsByPostId = new Map<string, any[]>();
     (comments ?? []).forEach((comment) => {
         const entry = {
             ...comment,
             author: getAuthor(comment.comment_user)
         };
-        const list = commentsByPostId.get(comment.comment_post) ?? [];
+        const list = commentsByPostId.get(comment.comment_post.toString()) ?? [];
         list.push(entry);
-        commentsByPostId.set(comment.comment_post, list);
+        commentsByPostId.set(comment.comment_post.toString(), list);
     });
 
     return (
@@ -115,8 +114,12 @@ export default async function FeedPage() {
                     ) : (
                         posts.map((post) => {
                             const author = getAuthor(post.post_user);
-                            const postComments = commentsByPostId.get(post.id) ?? [];
-                            // Pass data to the Client Component
+                            const postComments = commentsByPostId.get(post.id.toString()) ?? [];
+                            
+                            // --- NEW: CALCULATE LIKE DATA ---
+                            const postLikes = (likes ?? []).filter(l => l.post_id === post.id);
+                            const isLikedByMe = postLikes.some(l => l.user_id === user.id);
+
                             return (
                                 <Post
                                     key={post.id}
@@ -124,6 +127,9 @@ export default async function FeedPage() {
                                     author={author}
                                     comments={postComments}
                                     currentUser={currentUser}
+                                    // PASSING THE PERSISTENT DATA
+                                    initialLikesCount={postLikes.length}
+                                    initialIsLiked={isLikedByMe}
                                 />
                             );
                         })
@@ -138,8 +144,6 @@ export default async function FeedPage() {
                         currentUserId={user.id}
                     />
                 </div>
-
-
             </div>
         </div>
     );
