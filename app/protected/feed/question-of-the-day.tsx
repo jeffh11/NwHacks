@@ -7,6 +7,11 @@ interface QOTDResponse {
   user_id: string;
   response: string;
   created_at: string;
+  users: {
+    firstname: string;
+    lastname: string;
+    avatar_url: string | null;
+  };
 }
 
 interface QuestionOfTheDayProps {
@@ -120,11 +125,12 @@ export default function QuestionOfTheDay({
                 className="bg-blue-50 rounded-lg px-3 py-2 text-sm text-gray-800"
               >
                 <span className="font-semibold text-blue-700 mr-2">
-                  {r.user_id === currentUser.id
-                    ? "You"
-                    : "Family Member"}
-                  :
+                    {r.user_id === currentUser.id
+                        ? "You"
+                        : `${r.users.firstname} ${r.users.lastname}`}
+                    :
                 </span>
+
                 {r.response}
                 <span className="block text-xs text-gray-400 mt-1">
                   {new Date(r.created_at).toLocaleTimeString([], {

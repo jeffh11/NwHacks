@@ -110,13 +110,23 @@ export default async function FeedPage() {
     const qotdQuestion =
     qotdRow?.question ?? "What is one thing that made you smile today?";
 
-    // Fetch responses
     const { data: qotdResponses } = await supabase
     .from("family_question_responses")
-    .select("id, user_id, response, created_at")
+    .select(`
+        id,
+        user_id,
+        response,
+        created_at,
+        users (
+        firstname,
+        lastname,
+        avatar_url
+        )
+    `)
     .eq("family_id", familyIds[0])
     .eq("response_date", todayDate)
     .order("created_at", { ascending: true });
+
 
 
     return (
