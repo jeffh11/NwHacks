@@ -13,13 +13,13 @@ export default async function CreatePostPage() {
   const { data: memberships } = await supabase
     .from("family_members")
     .select(`
-      family_id,
+      family,
       families (
         id,
         name
       )
     `)
-    .eq("user_id", user?.id);
+    .eq("user", user?.id);
 
   return (
     <div className="relative flex min-h-svh w-full items-center justify-center overflow-hidden bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100 p-6 md:p-10">
