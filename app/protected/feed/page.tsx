@@ -69,7 +69,7 @@ export default async function FeedPage() {
 
     const commentsByPostId = new Map<string, {
         id: string;
-        text: string;
+        content: string;
         created_at: string;
         comment_user: string;
         comment_post: string;
