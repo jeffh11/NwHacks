@@ -49,13 +49,13 @@ type CommentData = {
     };
 };
 
-export default function Post({ 
-    post, 
-    author, 
-    comments: initialComments, 
+export default function Post({
+    post,
+    author,
+    comments: initialComments,
     currentUser,
     initialLikesCount,
-    initialIsLiked 
+    initialIsLiked
 }: PostProps) {
     // 1. Initialize state from server-side props
     const [isLiked, setIsLiked] = useState(initialIsLiked);
@@ -82,7 +82,7 @@ export default function Post({
     const previewAudioRef = useRef<HTMLAudioElement | null>(null);
     const recordingStartTimeRef = useRef<number>(0);
     const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    
+
     // Audio playback state for comments
     const [playingCommentId, setPlayingCommentId] = useState<string | null>(null);
     const [audioProgress, setAudioProgress] = useState<Record<string, number>>({});
@@ -124,7 +124,7 @@ export default function Post({
             const mediaRecorder = new MediaRecorder(stream, {
                 mimeType: 'audio/webm;codecs=opus'
             });
-            
+
             mediaRecorderRef.current = mediaRecorder;
             audioChunksRef.current = [];
             recordingStartTimeRef.current = Date.now();
@@ -142,10 +142,10 @@ export default function Post({
                 setRecordingDuration(duration);
                 const url = URL.createObjectURL(audioBlob);
                 setAudioPreviewUrl(url);
-                
+
                 // Stop all tracks
                 stream.getTracks().forEach(track => track.stop());
-                
+
                 // Clear duration interval
                 if (durationIntervalRef.current) {
                     clearInterval(durationIntervalRef.current);
@@ -156,7 +156,7 @@ export default function Post({
             mediaRecorder.start();
             setIsRecording(true);
             setRecordingDuration(0);
-            
+
             // Update duration every 100ms for UI display
             durationIntervalRef.current = setInterval(() => {
                 setRecordingDuration(Date.now() - recordingStartTimeRef.current);
@@ -171,7 +171,7 @@ export default function Post({
         if (mediaRecorderRef.current && isRecording) {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
-            
+
             // Clear duration interval
             if (durationIntervalRef.current) {
                 clearInterval(durationIntervalRef.current);
@@ -224,7 +224,7 @@ export default function Post({
     const uploadAudio = async (audioBlob: Blob): Promise<string> => {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user) {
             throw new Error("Not authenticated");
         }
@@ -255,7 +255,7 @@ export default function Post({
     const handleCommentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const trimmed = commentText.trim();
-        
+
         // Allow comments with either text or audio (or both)
         if (!trimmed && !recordedAudio) {
             setCommentError("Add text or record a voice note.");
@@ -413,11 +413,10 @@ export default function Post({
                 <div className="flex gap-2">
                     <button
                         onClick={handleLikeToggle}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${
-                            isLiked
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${isLiked
                                 ? "bg-rose-50 text-rose-500"
                                 : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
-                        }`}
+                            }`}
                     >
                         <Heart
                             size={20}
@@ -448,9 +447,6 @@ export default function Post({
                             <Trash2 size={18} />
                         </button>
                     )}
-                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
-                        <Share2 size={20} />
-                    </button>
                 </div>
             </div>
 
@@ -463,176 +459,175 @@ export default function Post({
                 {comments.length === 0 ? (
                     <p className="text-sm text-slate-400 font-semibold px-1">No comments yet. 💛</p>
                 ) : (
-                        <div className="space-y-4">
-                            {comments.map((comment) => (
-                                <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
-                                    <Avatar
-                                        name={comment.author.name}
-                                        initial={comment.author.initial}
-                                        avatarUrl={comment.author.avatarUrl}
-                                        size="sm"
-                                    />
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
-                                            <span className="text-slate-800">{comment.author.name}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black flex items-center gap-1">
-                                                <Clock size={10} />
-                                                {new Date(comment.created_at).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                        {comment.content && (
-                                            <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
-                                                {comment.content}
-                                            </p>
-                                        )}
-                                        {comment.audio_url && (
-                                            <AudioPlayer
-                                                commentId={comment.id}
-                                                audioUrl={comment.audio_url}
-                                                durationMs={comment.audio_duration_ms || 0}
-                                                isPlaying={playingCommentId === comment.id}
-                                                progress={audioProgress[comment.id] || 0}
-                                                onPlayPause={(commentId: string) => {
-                                                    const audio = commentAudioRefs.current[commentId];
-                                                    
-                                                    // Toggle based on current isPlaying state to avoid race conditions
-                                                    const shouldPlay = playingCommentId !== commentId;
-                                                    
-                                                    // Stop any other playing audio
-                                                    Object.entries(commentAudioRefs.current).forEach(([id, otherAudio]) => {
-                                                        if (id !== commentId && !otherAudio.paused) {
-                                                            otherAudio.pause();
-                                                            otherAudio.currentTime = 0;
-                                                            setPlayingCommentId(null);
-                                                        }
-                                                    });
-                                                    
-                                                    if (audio) {
-                                                        if (shouldPlay) {
-                                                            // Play this audio
-                                                            audio.play().catch((err) => {
-                                                                console.error("Error playing audio:", err);
-                                                            });
-                                                            setPlayingCommentId(commentId);
-                                                        } else {
-                                                            // Pause this audio
-                                                            audio.pause();
-                                                            setPlayingCommentId(null);
-                                                        }
-                                                    }
-                                                }}
-                                                onProgressUpdate={(commentId: string, progress: number) => {
-                                                    setAudioProgress(prev => ({ ...prev, [commentId]: progress }));
-                                                }}
-                                                onEnded={(commentId: string) => {
-                                                    setPlayingCommentId(null);
-                                                    setAudioProgress(prev => ({ ...prev, [commentId]: 0 }));
-                                                }}
-                                                audioRef={(commentId: string, audioElement: HTMLAudioElement | null) => {
-                                                    if (audioElement) {
-                                                        commentAudioRefs.current[commentId] = audioElement;
-                                                    } else {
-                                                        delete commentAudioRefs.current[commentId];
-                                                    }
-                                                }}
-                                            />
-                                        )}
+                    <div className="space-y-4">
+                        {comments.map((comment) => (
+                            <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
+                                <Avatar
+                                    name={comment.author.name}
+                                    initial={comment.author.initial}
+                                    avatarUrl={comment.author.avatarUrl}
+                                    size="sm"
+                                />
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
+                                        <span className="text-slate-800">{comment.author.name}</span>
+                                        <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black flex items-center gap-1">
+                                            <Clock size={10} />
+                                            {new Date(comment.created_at).toLocaleDateString()}
+                                        </span>
                                     </div>
+                                    {comment.content && (
+                                        <p className="text-sm text-slate-700 mt-1 whitespace-pre-wrap">
+                                            {comment.content}
+                                        </p>
+                                    )}
+                                    {comment.audio_url && (
+                                        <AudioPlayer
+                                            commentId={comment.id}
+                                            audioUrl={comment.audio_url}
+                                            durationMs={comment.audio_duration_ms || 0}
+                                            isPlaying={playingCommentId === comment.id}
+                                            progress={audioProgress[comment.id] || 0}
+                                            onPlayPause={(commentId: string) => {
+                                                const audio = commentAudioRefs.current[commentId];
+
+                                                // Toggle based on current isPlaying state to avoid race conditions
+                                                const shouldPlay = playingCommentId !== commentId;
+
+                                                // Stop any other playing audio
+                                                Object.entries(commentAudioRefs.current).forEach(([id, otherAudio]) => {
+                                                    if (id !== commentId && !otherAudio.paused) {
+                                                        otherAudio.pause();
+                                                        otherAudio.currentTime = 0;
+                                                        setPlayingCommentId(null);
+                                                    }
+                                                });
+
+                                                if (audio) {
+                                                    if (shouldPlay) {
+                                                        // Play this audio
+                                                        audio.play().catch((err) => {
+                                                            console.error("Error playing audio:", err);
+                                                        });
+                                                        setPlayingCommentId(commentId);
+                                                    } else {
+                                                        // Pause this audio
+                                                        audio.pause();
+                                                        setPlayingCommentId(null);
+                                                    }
+                                                }
+                                            }}
+                                            onProgressUpdate={(commentId: string, progress: number) => {
+                                                setAudioProgress(prev => ({ ...prev, [commentId]: progress }));
+                                            }}
+                                            onEnded={(commentId: string) => {
+                                                setPlayingCommentId(null);
+                                                setAudioProgress(prev => ({ ...prev, [commentId]: 0 }));
+                                            }}
+                                            audioRef={(commentId: string, audioElement: HTMLAudioElement | null) => {
+                                                if (audioElement) {
+                                                    commentAudioRefs.current[commentId] = audioElement;
+                                                } else {
+                                                    delete commentAudioRefs.current[commentId];
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
+                    </div>
                 )}
 
                 {/* New Comment Input */}
                 <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
                     <Avatar
-                            name={currentUser.name}
-                            initial={currentUser.initial}
-                            avatarUrl={currentUser.avatarUrl}
-                            size="md"
+                        name={currentUser.name}
+                        initial={currentUser.initial}
+                        avatarUrl={currentUser.avatarUrl}
+                        size="md"
+                    />
+                    <div className="flex-1">
+                        <textarea
+                            value={commentText}
+                            onChange={(event) => setCommentText(event.target.value)}
+                            rows={2}
+                            placeholder="Write a comment or record a voice note..."
+                            className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
                         />
-                        <div className="flex-1">
-                            <textarea
-                                value={commentText}
-                                onChange={(event) => setCommentText(event.target.value)}
-                                rows={2}
-                                placeholder="Write a comment or record a voice note..."
-                                className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
-                            />
-                            
-                            {/* Voice Recording UI */}
-                            <div className="mt-2 space-y-2">
-                                {!recordedAudio ? (
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={isRecording ? stopRecording : startRecording}
-                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                                                isRecording
-                                                    ? "bg-rose-500 text-white hover:bg-rose-600"
-                                                    : "bg-orange-50 text-orange-600 hover:bg-orange-100"
-                                            }`}
-                                        >
-                                            {isRecording ? (
-                                                <>
-                                                    <Square size={14} />
-                                                    <span>Stop</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Mic size={14} />
-                                                    <span>Record</span>
-                                                </>
-                                            )}
-                                        </button>
-                                        {isRecording && (
-                                            <span className="text-xs text-rose-500 font-semibold flex items-center gap-1">
-                                                <span className="h-2 w-2 bg-rose-500 rounded-full animate-pulse"></span>
-                                                Recording...
-                                            </span>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-xl">
-                                        <button
-                                            type="button"
-                                            onClick={togglePreviewPlayback}
-                                            className="p-1.5 rounded-lg bg-white text-orange-600 hover:bg-orange-100 transition-colors"
-                                        >
-                                            {isPlayingPreview ? (
-                                                <Pause size={14} />
-                                            ) : (
-                                                <Play size={14} />
-                                            )}
-                                        </button>
-                                        <span className="text-xs text-slate-600 flex-1">
-                                            Voice note recorded
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={clearRecording}
-                                            className="text-xs text-rose-500 hover:text-rose-600 font-semibold"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
 
-                    <div className="mt-2 flex items-center justify-between">
-                                <span className="text-xs text-rose-500 font-semibold">
-                                    {commentError ?? ""}
-                                </span>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting || isUploading || (commentText.trim().length === 0 && !recordedAudio)}
-                                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
-                                >
-                                    {isUploading ? "Uploading..." : isSubmitting ? "Posting..." : "Post"}
-                                </button>
+                        {/* Voice Recording UI */}
+                        <div className="mt-2 space-y-2">
+                            {!recordedAudio ? (
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={isRecording ? stopRecording : startRecording}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${isRecording
+                                                ? "bg-rose-500 text-white hover:bg-rose-600"
+                                                : "bg-orange-50 text-orange-600 hover:bg-orange-100"
+                                            }`}
+                                    >
+                                        {isRecording ? (
+                                            <>
+                                                <Square size={14} />
+                                                <span>Stop</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Mic size={14} />
+                                                <span>Record</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    {isRecording && (
+                                        <span className="text-xs text-rose-500 font-semibold flex items-center gap-1">
+                                            <span className="h-2 w-2 bg-rose-500 rounded-full animate-pulse"></span>
+                                            Recording...
+                                        </span>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-xl">
+                                    <button
+                                        type="button"
+                                        onClick={togglePreviewPlayback}
+                                        className="p-1.5 rounded-lg bg-white text-orange-600 hover:bg-orange-100 transition-colors"
+                                    >
+                                        {isPlayingPreview ? (
+                                            <Pause size={14} />
+                                        ) : (
+                                            <Play size={14} />
+                                        )}
+                                    </button>
+                                    <span className="text-xs text-slate-600 flex-1">
+                                        Voice note recorded
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={clearRecording}
+                                        className="text-xs text-rose-500 hover:text-rose-600 font-semibold"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className="text-xs text-rose-500 font-semibold">
+                                {commentError ?? ""}
+                            </span>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || isUploading || (commentText.trim().length === 0 && !recordedAudio)}
+                                className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
+                            >
+                                {isUploading ? "Uploading..." : isSubmitting ? "Posting..." : "Post"}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
             </div>
         </div>
     );
@@ -760,17 +755,16 @@ function AudioPlayer({
                 src={audioUrl}
                 preload="metadata"
             />
-            
+
             <div className="flex items-center gap-3">
                 {/* Play/Pause Button */}
                 <button
                     type="button"
                     onClick={() => onPlayPause(commentId)}
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        isPlaying
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all ${isPlaying
                             ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-200'
                             : 'bg-white text-orange-600 hover:bg-orange-100 border-2 border-orange-200'
-                    }`}
+                        }`}
                 >
                     {isPlaying ? (
                         <Pause size={18} fill="currentColor" />
@@ -788,7 +782,7 @@ function AudioPlayer({
                             style={{ width: `${progress}%` }}
                         />
                     </div>
-                    
+
                     {/* Time Display */}
                     <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-600 font-semibold">
