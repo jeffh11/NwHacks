@@ -11,8 +11,8 @@ export default async function joinFamily(joinCode: string) {
 		throw new Error("User not authenticated");
 	}
 
-	const { error: insertError } =await sb.from("family_members").insert({
-		family: joinCode,
+	const { error: insertError } = await sb.from("family_members").insert({
+		family: joinCode.toUpperCase(),
 		user: user.data.user.id,
 	});
 
