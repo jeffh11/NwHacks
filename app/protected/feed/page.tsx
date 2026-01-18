@@ -35,7 +35,7 @@ export default async function FeedPage() {
 
     const { data: profilesData } = await supabase
         .from("users")
-        .select("supabase_id, firstname, lastname")
+        .select("supabase_id, firstname, lastname, avatar_url")
         .in("supabase_id", uniqueUserIds);
 
     const profiles = profilesData?.filter((p) => p.firstname) || [];
@@ -69,10 +69,11 @@ export default async function FeedPage() {
 
     const getAuthor = (userId: string) => {
         const found = profiles.find((p) => p.supabase_id === userId);
-        if (!found) return { name: "Family Member", initial: "F" };
+        if (!found) return { name: "Family Member", initial: "F", avatarUrl: null };
         return {
             name: `${found.firstname} ${found.lastname}`,
             initial: found.firstname[0],
+            avatarUrl: found.avatar_url || null,
         };
     };
 

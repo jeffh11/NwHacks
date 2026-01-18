@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MessageCircle, Heart, Share2, Clock, Trash2, Mic, Square, Play, Pause, Volume2 } from "lucide-react";
 import { createComment, toggleLike, deletePost } from "@/app/protected/feed/actions";
 import { createClient } from "@/lib/supabase/client";
+import Avatar from "@/components/avatar";
 
 interface PostProps {
     post: {
@@ -19,12 +20,14 @@ interface PostProps {
     author: {
         name: string;
         initial: string;
+        avatarUrl?: string | null;
     };
     comments: CommentData[];
     currentUser: {
         id: string;
         name: string;
         initial: string;
+        avatarUrl?: string | null;
     };
     // New props to handle persistent state from the server
     initialLikesCount: number;
@@ -42,6 +45,7 @@ type CommentData = {
     author: {
         name: string;
         initial: string;
+        avatarUrl?: string | null;
     };
 };
 
@@ -362,9 +366,12 @@ export default function Post({
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-7 transition-all hover:shadow-md">
             {/* Post Header */}
             <div className="flex items-center gap-4 mb-6">
-                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-400 flex items-center justify-center text-white font-bold text-xl shadow-inner">
-                    {author.initial}
-                </div>
+                <Avatar
+                    name={author.name}
+                    initial={author.initial}
+                    avatarUrl={author.avatarUrl}
+                    size="lg"
+                />
                 <div>
                     <h3 className="font-bold text-slate-900 text-lg">{author.name}</h3>
                     <div className="flex items-center gap-1 text-[10px] text-slate-400 uppercase font-black tracking-widest">
@@ -460,9 +467,12 @@ export default function Post({
                         <div className="space-y-4">
                             {comments.map((comment) => (
                                 <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
-                                    <div className="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-black uppercase">
-                                        {comment.author.initial}
-                                    </div>
+                                    <Avatar
+                                        name={comment.author.name}
+                                        initial={comment.author.initial}
+                                        avatarUrl={comment.author.avatarUrl}
+                                        size="sm"
+                                    />
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold">
                                             <span className="text-slate-800">{comment.author.name}</span>
@@ -536,9 +546,12 @@ export default function Post({
 
                     {/* New Comment Input */}
                     <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-300 to-rose-300 text-white flex items-center justify-center text-xs font-black uppercase">
-                            {currentUser.initial}
-                        </div>
+                        <Avatar
+                            name={currentUser.name}
+                            initial={currentUser.initial}
+                            avatarUrl={currentUser.avatarUrl}
+                            size="md"
+                        />
                         <div className="flex-1">
                             <textarea
                                 value={commentText}

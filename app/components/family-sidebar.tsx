@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Users } from "lucide-react";
+import Avatar from "@/components/avatar";
 
 interface Profile {
   supabase_id: string;
   firstname: string;
   lastname: string;
+  avatar_url?: string | null;
 }
 
 interface FamilySidebarProps {
@@ -69,9 +71,12 @@ export default function FamilySidebar({
               className="flex items-center justify-between p-2 rounded-xl transition hover:bg-slate-50 group"
             >
               <div className="flex items-center gap-4">
-                <div className="h-11 w-11 rounded-full bg-slate-50 border flex items-center justify-center font-bold text-sm text-slate-400 group-hover:border-orange-200 group-hover:text-orange-500 transition">
-                  {profile.firstname[0]}
-                </div>
+                <Avatar
+                  name={`${profile.firstname} ${profile.lastname}`}
+                  initial={profile.firstname[0]}
+                  avatarUrl={profile.avatar_url || null}
+                  size="md"
+                />
 
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-slate-700 group-hover:underline">
