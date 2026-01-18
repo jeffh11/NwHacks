@@ -4,11 +4,23 @@ import { useState } from "react";
 import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
 
 export default function Post({ post, author }: { post: any, author: any }) {
-    // State to track if the heart is clicked
+    // 1. Track if the current user has liked it
     const [isLiked, setIsLiked] = useState(false);
+    
+    // 2. Track the total number of likes (starting at 0 for now)
+    const [likesCount, setLikesCount] = useState(0);
 
     const toggleLike = () => {
-        setIsLiked(!isLiked);
+        if (isLiked) {
+            // If already liked, unlike it and decrease count
+            setIsLiked(false);
+            setLikesCount(prev => prev - 1);
+        } else {
+            // If not liked, like it and increase count
+            setIsLiked(true);
+            setLikesCount(prev => prev + 1);
+        }
+        // Future: Call Supabase here to persist the data
     };
 
     return (
@@ -35,10 +47,9 @@ export default function Post({ post, author }: { post: any, author: any }) {
             {/* Interaction Buttons */}
             <div className="flex items-center justify-between pt-5 border-t border-slate-50">
                 <div className="flex gap-2">
-                    {/* Like Button with Toggle Logic */}
                     <button 
                         onClick={toggleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors font-bold text-sm ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${
                             isLiked 
                             ? "bg-rose-50 text-rose-500" 
                             : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
@@ -49,7 +60,10 @@ export default function Post({ post, author }: { post: any, author: any }) {
                             fill={isLiked ? "currentColor" : "none"} 
                             className={isLiked ? "scale-110 transition-transform" : ""}
                         /> 
-                        {isLiked ? "Liked" : "Like"}
+                        {/* Display the like count and handle pluralization */}
+                        <span>
+                            {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+                        </span>
                     </button>
                     
                     <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors font-bold text-sm">
