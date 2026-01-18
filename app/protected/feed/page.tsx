@@ -94,14 +94,43 @@ export default async function FeedPage() {
         commentsByPostId.set(comment.comment_post.toString(), list);
     });
 
+    // QOTD: Fetch today's question and responses
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayDate = today.toISOString().split("T")[0];
+
+    // Fetch today's question (or fallback)
+    const { data: qotdRow } = await supabase
+    .from("family_daily_questions")
+    .select("question")
+    .eq("family_id", familyIds[0])
+    .eq("created_at", todayDate)
+    .single();
+
+    const qotdQuestion =
+    qotdRow?.question ?? "What is one thing that made you smile today?";
+
+    // Fetch responses
+    const { data: qotdResponses } = await supabase
+    .from("family_question_responses")
+    .select("id, user_id, response, created_at")
+    .eq("family_id", familyIds[0])
+    .eq("response_date", todayDate)
+    .order("created_at", { ascending: true });
+
+
     return (
         <div className="min-h-screen bg-[#f8fafc] flex justify-center p-4 md:p-8">
             <div className="max-w-[90rem] w-full grid grid-cols-1 lg:grid-cols-4 gap-10">
-
                 {/* QUESTION OF THE DAY */}
                 <div className="hidden lg:block lg:col-span-1">
                     <div className="sticky top-32">
-                        <QuestionOfTheDay />
+                        <QuestionOfTheDay
+                            question={qotdQuestion}
+                            responses={qotdResponses || []}
+                            currentUser={currentUser}
+                            familyId={familyIds[0]}
+                        />
                     </div>
                 </div>
 
