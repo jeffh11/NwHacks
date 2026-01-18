@@ -484,20 +484,29 @@ export default function Post({
                                                 isPlaying={playingCommentId === comment.id}
                                                 progress={audioProgress[comment.id] || 0}
                                                 onPlayPause={(commentId: string) => {
+                                                    const audio = commentAudioRefs.current[commentId];
+                                                    
+                                                    // Toggle based on current isPlaying state to avoid race conditions
+                                                    const shouldPlay = playingCommentId !== commentId;
+                                                    
                                                     // Stop any other playing audio
-                                                    Object.entries(commentAudioRefs.current).forEach(([id, audio]) => {
-                                                        if (id !== commentId && !audio.paused) {
-                                                            audio.pause();
-                                                            audio.currentTime = 0;
+                                                    Object.entries(commentAudioRefs.current).forEach(([id, otherAudio]) => {
+                                                        if (id !== commentId && !otherAudio.paused) {
+                                                            otherAudio.pause();
+                                                            otherAudio.currentTime = 0;
+                                                            setPlayingCommentId(null);
                                                         }
                                                     });
                                                     
-                                                    const audio = commentAudioRefs.current[commentId];
                                                     if (audio) {
-                                                        if (audio.paused) {
-                                                            audio.play();
+                                                        if (shouldPlay) {
+                                                            // Play this audio
+                                                            audio.play().catch((err) => {
+                                                                console.error("Error playing audio:", err);
+                                                            });
                                                             setPlayingCommentId(commentId);
                                                         } else {
+                                                            // Pause this audio
                                                             audio.pause();
                                                             setPlayingCommentId(null);
                                                         }
@@ -645,6 +654,7 @@ function AudioPlayer({
     const [audioDuration, setAudioDuration] = useState<number>(durationMs / 1000);
     const [currentTime, setCurrentTime] = useState<number>(0);
 
+    // Setup audio event listeners
     useEffect(() => {
         const audio = audioRefInternal.current;
         if (!audio) return;
@@ -658,27 +668,20 @@ function AudioPlayer({
             }
         };
 
-        const updateProgress = () => {
-            if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-                const progress = (audio.currentTime / audio.duration) * 100;
-                setCurrentTime(audio.currentTime);
-                onProgressUpdate(commentId, progress);
-            }
-        };
-
         const handleTimeUpdate = () => {
             if (audio.currentTime && !isNaN(audio.currentTime)) {
                 setCurrentTime(audio.currentTime);
             }
-            updateProgress();
+            // Update progress through the callback
+            if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                onProgressUpdate(commentId, progress);
+            }
         };
 
         const handleEnded = () => {
             onEnded(commentId);
             setCurrentTime(0);
-            if (progressIntervalRef.current) {
-                clearInterval(progressIntervalRef.current);
-            }
         };
 
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -690,20 +693,43 @@ function AudioPlayer({
             handleLoadedMetadata();
         }
 
-        // Start progress interval when playing
-        if (isPlaying && audio && !audio.paused) {
-            progressIntervalRef.current = setInterval(updateProgress, 100);
-        }
-
         return () => {
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('ended', handleEnded);
+        };
+    }, [commentId, audioRef, durationMs, onProgressUpdate, onEnded]);
+
+    // Manage progress interval based on playing state
+    useEffect(() => {
+        const audio = audioRefInternal.current;
+        if (!audio) return;
+
+        const updateProgress = () => {
+            if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
+                const progress = (audio.currentTime / audio.duration) * 100;
+                setCurrentTime(audio.currentTime);
+                onProgressUpdate(commentId, progress);
+            }
+        };
+
+        if (isPlaying && !audio.paused) {
+            // Start interval for smooth progress updates
+            progressIntervalRef.current = setInterval(updateProgress, 100);
+        } else {
+            // Clear interval when paused or stopped
+            if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current);
+                progressIntervalRef.current = null;
+            }
+        }
+
+        return () => {
             if (progressIntervalRef.current) {
                 clearInterval(progressIntervalRef.current);
             }
         };
-    }, [commentId, isPlaying, onProgressUpdate, onEnded, audioRef, durationMs]);
+    }, [isPlaying, commentId, onProgressUpdate]);
 
     const formatTime = (seconds: number) => {
         if (isNaN(seconds) || !isFinite(seconds)) return "0:00";

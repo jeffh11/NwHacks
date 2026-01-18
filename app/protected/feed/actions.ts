@@ -45,12 +45,12 @@ const getStoragePathFromUrl = (mediaUrl: string) => {
 /**
  * Creates a new comment
  */
-export async function createComment({ 
-  postId, 
-  text, 
-  audioUrl, 
-  audioDurationMs, 
-  audioMime 
+export async function createComment({
+  postId,
+  text,
+  audioUrl,
+  audioDurationMs,
+  audioMime
 }: CreateCommentInput): Promise<CommentResponse> {
   const supabase = await createClient();
 
@@ -60,7 +60,7 @@ export async function createComment({
   }
 
   const trimmed = text.trim();
-  
+
   // Allow comments with either text or audio (or both)
   if (!trimmed && !audioUrl) {
     throw new Error("Comment must have either text or audio.");
