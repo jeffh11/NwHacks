@@ -1,9 +1,15 @@
+"use client"
 import Card from "../../components/card";
 import Button from "../../components/button";
 import Link from "next/link";
 import { Users, Heart, ArrowLeft, Key, ArrowRight } from "lucide-react";
 
+import { useState } from "react";
+import joinFamily from "@/utils/joinFamily";
+
 export default function JoinFamilyPage() {
+  const [joinCode, setJoinCode] = useState("");
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
       {/* Floating Back Button */}
@@ -43,7 +49,7 @@ export default function JoinFamilyPage() {
               </div>
 
               {/* Form Section */}
-              <form className="space-y-6">
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-amber-900">
                     Family Invite Code
@@ -57,6 +63,8 @@ export default function JoinFamilyPage() {
                       required
                       autoComplete="off"
                       maxLength={5}
+                      value={joinCode}
+                      onChange={e => setJoinCode(e.target.value)}
                     />
                     <Key className="absolute left-3 top-3.5 h-5 w-5 text-amber-400" />
                   </div>
@@ -64,9 +72,9 @@ export default function JoinFamilyPage() {
 
                 {/* Submit Button */}
                 <div className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95">
-                  <Button text="Join Family" />
+                  <Button text="Join Family" onClick={() => joinFamily(joinCode)} />
                 </div>
-              </form>
+              </div>
 
               {/* Alternative Action */}
               <div className="mt-6 pt-6 border-t border-amber-100">
