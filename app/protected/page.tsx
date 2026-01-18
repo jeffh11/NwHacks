@@ -47,7 +47,7 @@ export default async function ProtectedPage() {
                 <div className="flex items-center gap-3">
                   <Users className="h-5 w-5" />
                   <div>
-                    <div className="font-semibold">Join a Family</div>
+                    <div className="font-semibold">Join a Family circle</div>
                     <div className="text-xs opacity-90">Use an invite code</div>
                   </div>
                 </div>
@@ -61,7 +61,7 @@ export default async function ProtectedPage() {
                 <div className="flex items-center gap-3">
                   <Plus className="h-5 w-5" />
                   <div>
-                    <div className="font-semibold">Create a Family</div>
+                    <div className="font-semibold">Create a Family circle</div>
                     <div className="text-xs text-amber-700/80">Start your family space</div>
                   </div>
                 </div>
