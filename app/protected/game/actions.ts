@@ -93,8 +93,12 @@ export async function submitGameSession({ durationMs, mistakes }: GameSessionInp
     throw new Error("Invalid game session data");
   }
 
-  // Calculate score (lower is better)
-  const score = durationMs + mistakes * 1500;
+  // Calculate score (higher is better)
+  // Base score of 100,000 minus time penalty and mistake penalty
+  const baseScore = 100000;
+  const timePenalty = durationMs;
+  const mistakePenalty = mistakes * 1500;
+  const score = Math.max(0, baseScore - timePenalty - mistakePenalty);
 
   // Get or create today's round
   const roundId = await getOrCreateTodayRound();
@@ -108,8 +112,8 @@ export async function submitGameSession({ durationMs, mistakes }: GameSessionInp
     .single();
 
   if (existingSession) {
-    // Only update if the new score is better (lower)
-    if (score < existingSession.score) {
+    // Only update if the new score is better (higher)
+    if (score > existingSession.score) {
       const { error: updateError } = await supabase
         .from("game_sessions")
         .update({
@@ -183,12 +187,12 @@ export async function getTodayLeaderboard(): Promise<LeaderboardEntry[]> {
     return [];
   }
 
-  // Get all sessions for this round, ordered by score (ascending)
+  // Get all sessions for this round, ordered by score (descending - higher is better)
   const { data: sessions, error: sessionsError } = await supabase
     .from("game_sessions")
     .select("user_id, score, duration_ms, mistakes")
     .eq("round_id", round.id)
-    .order("score", { ascending: true });
+    .order("score", { ascending: false });
 
   if (sessionsError || !sessions || sessions.length === 0) {
     return [];

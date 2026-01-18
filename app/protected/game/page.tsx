@@ -2,8 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, Users, Clock } from "lucide-react";
-import MemoryMatchBoard from "./memory-match-board";
-import { getTodayLeaderboard, submitGameSession } from "./actions";
+import { getTodayLeaderboard } from "./actions";
 import GameClient from "./game-client";
 import Avatar from "@/components/avatar";
 
@@ -36,22 +35,22 @@ export default async function GamePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-black text-amber-900 mb-2">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-black text-amber-900 mb-2">
             Daily Memory Match
           </h1>
-          <p className="text-amber-700/80">
-            Match all pairs as fast as you can! Lower score wins.
+          <p className="text-amber-700/80 text-sm">
+            Match all pairs as fast as you can! Higher score wins.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Game Board - Takes 2 columns on large screens */}
           <div className="lg:col-span-2">
             <Card className="border-amber-200 shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl font-black text-amber-900">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-black text-amber-900">
                   Play Now
                 </CardTitle>
               </CardHeader>
@@ -61,13 +60,13 @@ export default async function GamePage() {
             </Card>
           </div>
 
-          {/* Leaderboard - Takes 1 column on large screens */}
-          <div className="lg:col-span-1">
+          {/* Leaderboard - Takes 2 columns on large screens */}
+          <div className="lg:col-span-2">
             <Card className="border-amber-200 shadow-lg sticky top-8">
-              <CardHeader>
+              <CardHeader className="pb-4">
                 <div className="flex items-center gap-2">
-                  <Trophy className="h-6 w-6 text-amber-600" />
-                  <CardTitle className="text-xl font-black text-amber-900">
+                  <Trophy className="h-5 w-5 text-amber-600" />
+                  <CardTitle className="text-lg font-black text-amber-900">
                     Today&apos;s Leaderboard
                   </CardTitle>
                 </div>
@@ -140,9 +139,9 @@ export default async function GamePage() {
         </div>
 
         {/* Game Rules */}
-        <Card className="mt-6 border-amber-200 bg-amber-50/50">
-          <CardContent className="pt-6">
-            <h3 className="font-bold text-amber-900 mb-3">How to Play</h3>
+        <Card className="mt-4 border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-4">
+            <h3 className="font-bold text-amber-900 mb-2 text-sm">How to Play</h3>
             <ul className="space-y-2 text-sm text-amber-800/80">
               <li className="flex items-start gap-2">
                 <span className="font-bold text-amber-600">1.</span>
@@ -154,7 +153,7 @@ export default async function GamePage() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-amber-600">3.</span>
-                <span>Score = time + (mistakes × 1500ms) — lower is better!</span>
+                <span>Score = 100,000 - time - (mistakes × 1500ms) — higher is better!</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-amber-600">4.</span>
