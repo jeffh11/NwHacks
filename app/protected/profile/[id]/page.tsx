@@ -1,38 +1,33 @@
 import { createClient } from "@/lib/supabase/server";
-import Card from "../../components/card";
-import { redirect } from "next/navigation";
+import Card from "../../../components/card";
+import { redirect, notFound } from "next/navigation";
+import React from "react";
 
-export default async function FeedPage() {
+interface ProfilePageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function ProfilePage({ params }: ProfilePageProps) {
   const supabase = await createClient();
+  const profileUserId = (await params).id;
 
-  /* 1️⃣ Auth */
+  /* 1️⃣ Auth check */
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/login");
 
-  /* 2️⃣ Find user's family */
-  const { data: membership, error: membershipError } = await supabase
-    .from("family_members")
-    .select("family")
-    .eq("user", user.id)
+  /* 2️⃣ Fetch profile info */
+  const { data: profile } = await supabase
+    .from("users")
+    .select("firstname, lastname")
+    .eq("supabase_id", profileUserId)
     .single();
 
-  if (!membership || membershipError) {
-    redirect("/protected");
-  }
+  if (!profile) notFound();
 
-  const familyCode = membership.family;
-
-  /* 3️⃣ Fetch family info */
-  const { data: family } = await supabase
-    .from("families")
-    .select("name, description")
-    .eq("id", familyCode)
-    .single();
-
-  /* 4️⃣ Fetch posts for family */
+  /* 3️⃣ Fetch user's posts */
   const { data: posts } = await supabase
     .from("posts")
     .select(
@@ -41,65 +36,50 @@ export default async function FeedPage() {
       type,
       text,
       media_url,
-      created_at,
-      post_user,
-      users:post_user (
-        firstname,
-        lastname
-      )
+      created_at
     `
     )
-    .eq("post_family", familyCode)
+    .eq("post_user", profileUserId)
     .order("created_at", { ascending: false });
-
-    console.log(posts)
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 px-4 py-10 flex justify-center">
       <div className="w-full max-w-2xl space-y-6">
 
-        {/* Family header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-semibold text-gray-800">
-            {family?.name ?? "Family Feed"}
-          </h1>
-          {family?.description && (
+        {/* Profile header */}
+        <Card>
+          <div className="text-center">
+            <h1 className="text-3xl font-semibold text-gray-800">
+              {profile.firstname} {profile.lastname}
+            </h1>
             <p className="text-sm text-gray-500 mt-1">
-              {family.description}
+              Family member
             </p>
-          )}
-        </div>
+          </div>
+        </Card>
 
-        {/* Feed */}
+        {/* Posts */}
         {!posts || posts.length === 0 ? (
           <Card>
             <p className="text-center text-gray-500">
-              No posts yet 💛
+              No posts yet
             </p>
           </Card>
         ) : (
           posts.map((post) => (
             <Card key={post.id}>
-              {/* Author */}
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                {post.users?.firstname} {post.users?.lastname}
-              </p>
-
-              {/* Text post */}
               {post.type === "text" && (
                 <p className="text-gray-800">{post.text}</p>
               )}
 
-              {/* Media post */}
               {post.type === "media" && post.media_url && (
                 <img
                   src={post.media_url}
-                  alt="Family post"
+                  alt="Post media"
                   className="rounded-lg w-full object-cover"
                 />
               )}
 
-              {/* Audio post */}
               {post.type === "audio" && post.media_url && (
                 <audio controls className="w-full">
                   <source src={post.media_url} />
