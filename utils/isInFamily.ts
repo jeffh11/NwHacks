@@ -8,12 +8,11 @@ export default async function isInFamily() {
 	const { data, error } = await supabase
 		.from("family_members")
 		.select("*")
-		.eq("user", user?.id)
-		.single();
+		.eq("user", user?.id);
 
 	if (error) {
 		throw error;
 	}
 
-	return !!data;
+	return data && data.length > 0;
 }

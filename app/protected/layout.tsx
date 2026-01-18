@@ -13,11 +13,7 @@ async function AuthCheck({ children }: { children: React.ReactNode }) {
     
     if (error || !user) {
       redirect("/auth/login");
-    }
-
-    if (await isInFamily()) {
-      redirect("/protected/feed")
-    }
+    } 
 
   } catch (error) {
     console.error("Auth check failed:", error);
