@@ -2,9 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import Card from "../../../components/card";
 import { redirect, notFound } from "next/navigation";
 import Post from "../../feed/Post";
+import EditProfileForm from "./edit-profile-form";
+import Avatar from "@/components/avatar";
 
 interface ProfilePageProps {
-  params: Promise<{id:string}>
+  params: Promise<{ id: string }>
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
@@ -21,7 +23,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   /* 2️⃣ Fetch profile info */
   const { data: profile } = await supabase
     .from("users")
-    .select("firstname, lastname")
+    .select("firstname, lastname, avatar_url")
     .eq("supabase_id", profileUserId)
     .single();
 
@@ -36,13 +38,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const postIds = posts?.map((post) => post.id) ?? [];
 
-  const { data: comments } = postIds.length > 0
-    ? await supabase
+  const [{ data: comments }, { data: likes }] = await Promise.all([
+    postIds.length > 0
+      ? supabase
         .from("comments")
-        .select("id, content, created_at, comment_user, comment_post")
+        .select("id, content, created_at, comment_user, comment_post, audio_url, audio_duration_ms, audio_mime")
         .in("comment_post", postIds)
         .order("created_at", { ascending: true })
-    : { data: [] };
+      : Promise.resolve({ data: [] }),
+    postIds.length > 0
+      ? supabase.from("likes").select("post_id, user_id").in("post_id", postIds)
+      : Promise.resolve({ data: [] }),
+  ]);
 
   const commenterIds = Array.from(
     new Set((comments ?? []).map((comment) => comment.comment_user))
@@ -52,31 +59,35 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const { data: profilesData } = profileIds.length > 0
     ? await supabase
-        .from("users")
-        .select("supabase_id, firstname, lastname")
-        .in("supabase_id", profileIds)
+      .from("users")
+      .select("supabase_id, firstname, lastname, avatar_url")
+      .in("supabase_id", profileIds)
     : { data: [] };
 
   const profiles = profilesData?.filter((profile) => profile.firstname) || [];
 
   const getAuthor = (userId: string) => {
     const found = profiles.find((profile) => profile.supabase_id === userId);
-    if (!found) return { name: "Family Member", initial: "F" };
+    if (!found) return { name: "Family Member", initial: "F", avatarUrl: null };
     return {
       name: `${found.firstname} ${found.lastname}`,
       initial: found.firstname[0],
+      avatarUrl: found.avatar_url || null,
     };
   };
 
   const author = {
     name: `${profile.firstname} ${profile.lastname}`,
     initial: profile.firstname[0],
+    avatarUrl: profile.avatar_url || null,
   };
 
   const currentUser = {
     id: user.id,
     ...getAuthor(user.id),
   };
+
+  const isOwnProfile = user.id === profileUserId;
 
   const commentsByPostId = new Map<
     string,
@@ -86,9 +97,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       created_at: string;
       comment_user: string;
       comment_post: string;
+      audio_url?: string | null;
+      audio_duration_ms?: number | null;
+      audio_mime?: string | null;
       author: {
         name: string;
         initial: string;
+        avatarUrl?: string | null;
       };
     }[]
   >();
@@ -108,16 +123,41 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <div className="w-full max-w-2xl space-y-6">
 
         {/* Profile header */}
-        <Card>
-          <div className="text-center">
-            <h1 className="text-3xl font-semibold text-gray-800">
-              {profile.firstname} {profile.lastname}
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Family member
-            </p>
-          </div>
-        </Card>
+        {!isOwnProfile && (
+          <Card>
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <Avatar
+                  name={`${profile.firstname} ${profile.lastname}`}
+                  initial={profile.firstname[0]}
+                  avatarUrl={profile.avatar_url || null}
+                  size="xl"
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-800">
+                  {profile.firstname} {profile.lastname}
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  Family member
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Edit Profile Form (only for own profile) */}
+        {isOwnProfile && (
+          <Card>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Profile</h2>
+            <EditProfileForm
+              userId={user.id}
+              initialFirstName={profile.firstname}
+              initialLastName={profile.lastname}
+              initialAvatarUrl={profile.avatar_url}
+            />
+          </Card>
+        )}
 
         {/* Posts */}
         {!posts || posts.length === 0 ? (
@@ -129,6 +169,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         ) : (
           posts.map((post) => {
             const postComments = commentsByPostId.get(post.id) ?? [];
+            const postLikes = likes?.filter((l) => l.post_id === post.id) ?? [];
+            const isLikedByMe = postLikes.some((l) => l.user_id === user.id);
             return (
               <Post
                 key={post.id}
@@ -136,6 +178,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 author={author}
                 comments={postComments}
                 currentUser={currentUser}
+                initialLikesCount={postLikes.length}
+                initialIsLiked={isLikedByMe}
               />
             );
           })

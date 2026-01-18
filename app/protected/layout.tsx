@@ -4,6 +4,7 @@ import { Users, LogOut, Home } from "lucide-react";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button"; //
 import isInFamily from "@/utils/isInFamily";
+import HeaderUserAvatar from "./header-user-avatar";
 
 async function AuthCheck({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -47,6 +48,10 @@ export default function ProtectedLayout({
             <a href="/protected" className="hover:scale-110 transition-transform">
               <Home className="h-8 w-8 text-amber-800" />
             </a>
+            
+            <Suspense fallback={<div className="h-10 w-10 rounded-full bg-slate-200 animate-pulse" />}>
+              <HeaderUserAvatar />
+            </Suspense>
             
             <form action="/auth/logout" method="POST">
               {/* Using the Button component from your UI library with size="lg" */}
