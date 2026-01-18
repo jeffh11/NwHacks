@@ -27,7 +27,7 @@ export default async function GalleryPage() {
         .order("created_at", { ascending: false });
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-4 md:p-8">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">

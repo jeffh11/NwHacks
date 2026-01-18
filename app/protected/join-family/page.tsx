@@ -8,6 +8,8 @@ import joinFamily from "@/utils/joinFamily";
 
 export default function JoinFamilyPage() {
   const [joinCode, setJoinCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
@@ -20,9 +22,9 @@ export default function JoinFamilyPage() {
         <span className="text-base font-bold">Back</span>
       </Link>
 
-      <main className="min-h-screen flex items-center justify-center px-4 py-12">
+      <main className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md relative overflow-hidden">
-          <Card className="border-amber-200 shadow-2xl rounded-3xl bg-white/80 backdrop-blur-sm">
+          <Card className="border-amber-200 shadow-lg">
             <div className="relative z-10">
               <CardHeader className="text-center pb-6">
                 <div className="inline-flex items-center justify-center mb-6">
@@ -56,12 +58,32 @@ export default function JoinFamilyPage() {
                   </div>
                 </div>
 
+                {error && (
+                  <div className="w-full p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
+                    {error}
+                  </div>
+                )}
+
                 <Button 
                   size="lg"
-                  className="w-full h-16 text-lg font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-2xl shadow-lg transition-all active:scale-95"
-                  onClick={() => joinFamily(joinCode)}
+                  className="w-full h-16 text-lg font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                  onClick={async () => {
+                    if (!joinCode.trim()) {
+                      setError("Please enter a join code");
+                      return;
+                    }
+                    setError(null);
+                    setIsLoading(true);
+                    const result = await joinFamily(joinCode);
+                    if (result?.error) {
+                      setError(result.error);
+                      setIsLoading(false);
+                    }
+                    // If no error, redirect will happen in the server action
+                  }}
+                  disabled={isLoading}
                 >
-                  Join Family
+                  {isLoading ? "Joining..." : "Join Family"}
                 </Button>
 
                 <div className="w-full mt-4 pt-6 border-t border-amber-100 flex flex-col items-center">

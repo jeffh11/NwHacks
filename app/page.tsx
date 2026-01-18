@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"; //
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center bg-[var(--bg-soft)]">
+    <main className="min-h-screen flex flex-col items-center bg-gradient-to-br from-amber-50 to-orange-50">
       {/* NAV */}
       <nav className="w-full flex justify-center border-b h-20 bg-white shadow-sm">
         <div className="w-full max-w-5xl flex justify-between items-center px-8 text-xl">
@@ -31,7 +31,7 @@ export default function Home() {
         <h1 className="text-5xl font-extrabold text-amber-900 mb-4">
           Stay close to family, even when you’re far away
         </h1>
-        <p className="text-xl text-gray-700 mb-6">
+        <p className="text-xl text-slate-700 mb-6">
           Private family spaces for updates, voice messages, memories, and meaningful connection.
         </p>
         <Link
@@ -43,7 +43,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="text-base text-gray-500 py-8">
+      <footer className="text-base text-slate-500 py-8">
         Connecting families everywhere with Huddle
       </footer>
     </main>

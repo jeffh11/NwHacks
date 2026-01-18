@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Plus, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { Plus, Image as ImageIcon, ArrowRight, Settings } from "lucide-react";
 import FamilySidebar from "../../components/family-sidebar";
 import Link from "next/link";
 import Post from "./Post";
@@ -28,7 +28,7 @@ export default async function FeedPage() {
     /* --- NEW: FETCH FAMILY NAME & DESCRIPTION --- */
     const { data: familyData } = await supabase
         .from("families")
-        .select("name, description")
+        .select("name, description, owner")
         .in("id", familyIds)
         .single();
 
@@ -148,8 +148,8 @@ export default async function FeedPage() {
 
                 {/* MAIN FEED */}
                 <div className="lg:col-span-2 space-y-10">
-                    <header className="bg-white rounded-xl shadow p-6 flex justify-between items-end mb-4">
-                        <div>
+                    <header className="bg-white rounded-xl shadow p-6 flex justify-between items-center mb-4 gap-4">
+                        <div className="flex-1 min-w-0">
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
                             {familyData?.name + " Feed" || "Family Feed"}
                             </h1>
@@ -169,10 +169,20 @@ export default async function FeedPage() {
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-shrink-0">
+                            {familyData?.owner === user.id && (
+                                <Link
+                                    href="/protected/family/edit"
+                                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-amber-800 font-bold hover:bg-amber-50 transition-all border-2 border-amber-200 whitespace-nowrap"
+                                    title="Edit Family"
+                                >
+                                    <Settings className="h-5 w-5 flex-shrink-0" />
+                                    <span>Edit Family</span>
+                                </Link>
+                            )}
                             <Link
                             href="/protected/create-post"
-                            className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95"
+                            className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95 flex-shrink-0"
                             >
                             <Plus size={24} />
                             </Link>

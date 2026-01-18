@@ -140,7 +140,7 @@ export default function EditProfileForm({
       {/* Name Inputs */}
       <div className="space-y-4">
         <div>
-          <label htmlFor="firstName" className="block text-sm font-bold text-gray-700 mb-2">
+          <label htmlFor="firstName" className="block text-sm font-bold text-slate-700 mb-2">
             First Name
           </label>
           <input
@@ -149,11 +149,11 @@ export default function EditProfileForm({
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
+            className="w-full px-4 py-2 border border-amber-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
           />
         </div>
         <div>
-          <label htmlFor="lastName" className="block text-sm font-bold text-gray-700 mb-2">
+          <label htmlFor="lastName" className="block text-sm font-bold text-slate-700 mb-2">
             Last Name
           </label>
           <input
@@ -162,7 +162,7 @@ export default function EditProfileForm({
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
+            className="w-full px-4 py-2 border border-amber-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
           />
         </div>
       </div>

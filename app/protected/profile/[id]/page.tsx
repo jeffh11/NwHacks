@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Card from "../../../components/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { redirect, notFound } from "next/navigation";
 import Post from "../../feed/Post";
 import EditProfileForm from "./edit-profile-form";
@@ -119,52 +119,58 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 px-4 py-10 flex justify-center">
+    <main className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 px-4 py-10 flex justify-center">
       <div className="w-full max-w-2xl space-y-6">
 
         {/* Profile header */}
         {!isOwnProfile && (
-          <Card>
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                <Avatar
-                  name={`${profile.firstname} ${profile.lastname}`}
-                  initial={profile.firstname[0]}
-                  avatarUrl={profile.avatar_url || null}
-                  size="xl"
-                />
+          <Card className="border-amber-200 shadow-lg">
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center">
+                  <Avatar
+                    name={`${profile.firstname} ${profile.lastname}`}
+                    initial={profile.firstname[0]}
+                    avatarUrl={profile.avatar_url || null}
+                    size="xl"
+                  />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-semibold text-slate-900">
+                    {profile.firstname} {profile.lastname}
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Family member
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-3xl font-semibold text-gray-800">
-                  {profile.firstname} {profile.lastname}
-                </h1>
-                <p className="text-sm text-gray-500 mt-1">
-                  Family member
-                </p>
-              </div>
-            </div>
+            </CardContent>
           </Card>
         )}
 
         {/* Edit Profile Form (only for own profile) */}
         {isOwnProfile && (
-          <Card>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Edit Profile</h2>
-            <EditProfileForm
-              userId={user.id}
-              initialFirstName={profile.firstname}
-              initialLastName={profile.lastname}
-              initialAvatarUrl={profile.avatar_url}
-            />
+          <Card className="border-amber-200 shadow-lg">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Edit Profile</h2>
+              <EditProfileForm
+                userId={user.id}
+                initialFirstName={profile.firstname}
+                initialLastName={profile.lastname}
+                initialAvatarUrl={profile.avatar_url}
+              />
+            </CardContent>
           </Card>
         )}
 
         {/* Posts */}
         {!posts || posts.length === 0 ? (
-          <Card>
-            <p className="text-center text-gray-500">
-              No posts yet
-            </p>
+          <Card className="border-amber-200 shadow-lg">
+            <CardContent className="p-6">
+              <p className="text-center text-slate-500">
+                No posts yet
+              </p>
+            </CardContent>
           </Card>
         ) : (
           posts.map((post) => {

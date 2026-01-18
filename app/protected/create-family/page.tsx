@@ -27,8 +27,8 @@ export default function CreateFamilyPage() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-amber-50 to-orange-50">
-            <Card className="w-full max-w-md shadow-2xl border-none">
+        <main className="min-h-screen flex items-center justify-center px-6 py-12 bg-gradient-to-br from-amber-50 to-orange-50">
+            <Card className="w-full max-w-md border-amber-200 shadow-lg">
                 <CardHeader className="text-center">
                     <div className="flex justify-center mb-4">
                         <div className="p-4 bg-orange-100 rounded-2xl shadow-sm">

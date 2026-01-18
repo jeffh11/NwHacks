@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body 
-        className={`${geistSans.className} antialiased bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900`}
+        className={`${geistSans.className} antialiased bg-gradient-to-br from-amber-50 to-orange-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900`}
       >
         <ThemeProvider
           attribute="class"
