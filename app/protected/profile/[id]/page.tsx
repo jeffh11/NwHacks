@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import Card from "../../../components/card";
 import { redirect, notFound } from "next/navigation";
-import React from "react";
+import Post from "../../feed/Post";
 
 interface ProfilePageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{id:string}>
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
@@ -27,20 +27,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!profile) notFound();
 
-  /* 3️⃣ Fetch user's posts */
+  /* 3️⃣ Fetch user's posts (NO JOIN) */
   const { data: posts } = await supabase
     .from("posts")
-    .select(
-      `
-      id,
-      type,
-      text,
-      media_url,
-      created_at
-    `
-    )
+    .select("id, type, text, media_url, created_at, post_user")
     .eq("post_user", profileUserId)
     .order("created_at", { ascending: false });
+
+  const author = {
+    name: `${profile.firstname} ${profile.lastname}`,
+    initial: profile.firstname[0],
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-amber-50 via-rose-50 to-sky-50 px-4 py-10 flex justify-center">
@@ -67,29 +64,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           </Card>
         ) : (
           posts.map((post) => (
-            <Card key={post.id}>
-              {post.type === "text" && (
-                <p className="text-gray-800">{post.text}</p>
-              )}
-
-              {post.type === "media" && post.media_url && (
-                <img
-                  src={post.media_url}
-                  alt="Post media"
-                  className="rounded-lg w-full object-cover"
-                />
-              )}
-
-              {post.type === "audio" && post.media_url && (
-                <audio controls className="w-full">
-                  <source src={post.media_url} />
-                </audio>
-              )}
-
-              <p className="text-xs text-gray-400 mt-3">
-                {new Date(post.created_at).toLocaleString()}
-              </p>
-            </Card>
+            <Post
+              key={post.id}
+              post={post}
+              author={author}
+            />
           ))
         )}
       </div>
