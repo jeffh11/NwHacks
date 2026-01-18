@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useTransition } from "react";
-import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
-import { createComment } from "@/app/protected/feed/actions";
+import { useRouter } from "next/navigation";
+import { MessageCircle, Heart, Share2, Clock, Trash2 } from "lucide-react";
+import { createComment, toggleLike, deletePost } from "@/app/protected/feed/actions";
 
 interface PostProps {
     post: {
@@ -23,6 +24,9 @@ interface PostProps {
         name: string;
         initial: string;
     };
+    // New props to handle persistent state from the server
+    initialLikesCount: number;
+    initialIsLiked: boolean;
 }
 
 type CommentData = {
@@ -36,30 +40,44 @@ type CommentData = {
     };
 };
 
-export default function Post({ post, author, comments: initialComments, currentUser }: PostProps) {
-    // 1. Track if the current user has liked it
-    const [isLiked, setIsLiked] = useState(false);
-
-    // 2. Track the total number of likes (starting at 0 for now)
-    const [likesCount, setLikesCount] = useState(0);
+export default function Post({ 
+    post, 
+    author, 
+    comments: initialComments, 
+    currentUser,
+    initialLikesCount,
+    initialIsLiked 
+}: PostProps) {
+    // 1. Initialize state from server-side props
+    const [isLiked, setIsLiked] = useState(initialIsLiked);
+    const [likesCount, setLikesCount] = useState(initialLikesCount);
 
     const [showComments, setShowComments] = useState(false);
     const [commentText, setCommentText] = useState("");
     const [commentError, setCommentError] = useState<string | null>(null);
     const [comments, setComments] = useState<CommentData[]>(initialComments);
     const [isSubmitting, startTransition] = useTransition();
+    const [isDeleting, startDeleteTransition] = useTransition();
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const router = useRouter();
 
-    const toggleLike = () => {
-        if (isLiked) {
-            // If already liked, unlike it and decrease count
-            setIsLiked(false);
-            setLikesCount(prev => prev - 1);
-        } else {
-            // If not liked, like it and increase count
-            setIsLiked(true);
-            setLikesCount(prev => prev + 1);
+    // 2. Updated toggleLike with Database persistence
+    const handleLikeToggle = async () => {
+        // Optimistic UI: Update immediately for a snappy feel
+        const nextLikedState = !isLiked;
+        setIsLiked(nextLikedState);
+        setLikesCount(prev => nextLikedState ? prev + 1 : prev - 1);
+
+        try {
+            // Call the Server Action (Passing current isLiked state to toggle it)
+            // post.id is cast to Number because the DB uses bigint
+            await toggleLike(Number(post.id), isLiked);
+        } catch (error) {
+            // Rollback UI state if the database update fails
+            setIsLiked(isLiked);
+            setLikesCount(likesCount);
+            console.error("Failed to update like:", error);
         }
-        // Future: Call Supabase here to persist the data
     };
 
     const handleCommentToggle = () => {
@@ -102,6 +120,25 @@ export default function Post({ post, author, comments: initialComments, currentU
         });
     };
 
+    const handleDeletePost = () => {
+        if (isDeleting) return;
+        const confirmed = window.confirm("Delete this post? This cannot be undone.");
+        if (!confirmed) return;
+
+        startDeleteTransition(async () => {
+            try {
+                await deletePost({ postId: post.id });
+                setDeleteError(null);
+                router.refresh();
+            } catch (error) {
+                const message = error instanceof Error ? error.message : "Failed to delete post.";
+                setDeleteError(message);
+            }
+        });
+    };
+
+    const canDelete = currentUser.id === post.post_user;
+
     return (
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm p-7 transition-all hover:shadow-md">
             {/* Post Header */}
@@ -119,34 +156,24 @@ export default function Post({ post, author, comments: initialComments, currentU
             </div>
 
             {/* Post Body */}
-            {/* Text-only posts */}
-            {post.type === "text" && post.text && (
+            {post.text && (
                 <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
                     {post.text}
                 </div>
             )}
 
-            {/* Text for media posts (shown below media if text exists) */}
-            {post.text && (post.type === "image" || post.type === "video") && (
-                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
-                    {post.text}
-                </div>
-            )}
-            {/* Image Media */}
             {post.type === "image" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden">
+                <div className="mb-8 rounded-2xl overflow-hidden border border-slate-50">
                     <img
                         src={post.media_url}
-                        alt="Post image"
+                        alt="Post content"
                         className="w-full max-h-[600px] object-contain rounded-2xl"
                     />
                 </div>
             )}
 
-
-            {/* Video Media */}
             {post.type === "video" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden">
+                <div className="mb-8 rounded-2xl overflow-hidden border border-slate-50">
                     <video
                         src={post.media_url}
                         controls
@@ -159,18 +186,18 @@ export default function Post({ post, author, comments: initialComments, currentU
             <div className="flex items-center justify-between pt-5 border-t border-slate-50">
                 <div className="flex gap-2">
                     <button
-                        onClick={toggleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${isLiked
-                            ? "bg-rose-50 text-rose-500"
-                            : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
-                            }`}
+                        onClick={handleLikeToggle}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${
+                            isLiked
+                                ? "bg-rose-50 text-rose-500"
+                                : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
+                        }`}
                     >
                         <Heart
                             size={20}
                             fill={isLiked ? "currentColor" : "none"}
                             className={isLiked ? "scale-110 transition-transform" : ""}
                         />
-                        {/* Display the like count and handle pluralization */}
                         <span>
                             {likesCount} {likesCount === 1 ? 'like' : 'likes'}
                         </span>
@@ -181,22 +208,39 @@ export default function Post({ post, author, comments: initialComments, currentU
                         className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors font-bold text-sm"
                     >
                         <MessageCircle size={20} />
-                        {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                        <span>{comments.length} {comments.length === 1 ? "comment" : "comments"}</span>
                     </button>
                 </div>
-                <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
-                    <Share2 size={20} />
-                </button>
+                <div className="flex items-center gap-1">
+                    {canDelete && (
+                        <button
+                            onClick={handleDeletePost}
+                            disabled={isDeleting}
+                            className="p-2 text-slate-300 hover:text-rose-500 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                            aria-label="Delete post"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    )}
+                    <button className="p-2 text-slate-300 hover:text-slate-600 transition-colors">
+                        <Share2 size={20} />
+                    </button>
+                </div>
             </div>
 
+            {deleteError && (
+                <p className="mt-3 text-xs text-rose-500 font-semibold">{deleteError}</p>
+            )}
+
+            {/* Comment Section */}
             {showComments && (
                 <div className="mt-6 space-y-5">
                     {comments.length === 0 ? (
-                        <p className="text-sm text-slate-400 font-semibold">No comments yet.</p>
+                        <p className="text-sm text-slate-400 font-semibold px-1">No comments yet. 💛</p>
                     ) : (
                         <div className="space-y-4">
                             {comments.map((comment) => (
-                                <div key={comment.id} className="flex gap-3">
+                                <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
                                     <div className="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-black uppercase">
                                         {comment.author.initial}
                                     </div>
@@ -217,7 +261,8 @@ export default function Post({ post, author, comments: initialComments, currentU
                         </div>
                     )}
 
-                    <form onSubmit={handleCommentSubmit} className="flex gap-3">
+                    {/* New Comment Input */}
+                    <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
                         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-300 to-rose-300 text-white flex items-center justify-center text-xs font-black uppercase">
                             {currentUser.initial}
                         </div>
@@ -227,7 +272,7 @@ export default function Post({ post, author, comments: initialComments, currentU
                                 onChange={(event) => setCommentText(event.target.value)}
                                 rows={2}
                                 placeholder="Write a comment..."
-                                className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200"
+                                className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
                             />
                             <div className="mt-2 flex items-center justify-between">
                                 <span className="text-xs text-rose-500 font-semibold">
@@ -236,7 +281,7 @@ export default function Post({ post, author, comments: initialComments, currentU
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || commentText.trim().length === 0}
-                                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                    className="px-4 py-2 rounded-xl bg-orange-500 text-white text-xs font-bold uppercase tracking-widest hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95 shadow-sm"
                                 >
                                     {isSubmitting ? "Posting..." : "Post"}
                                 </button>
