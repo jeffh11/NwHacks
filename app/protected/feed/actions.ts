@@ -14,7 +14,7 @@ type CommentResponse = {
   id: string;
   content: string;
   created_at: string;
-  comment_user: string;
+  comment_user: string; 
 };
 
 type DeletePostInput = {
