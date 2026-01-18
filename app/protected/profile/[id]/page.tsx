@@ -72,18 +72,30 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <p className="text-gray-800">{post.text}</p>
               )}
 
-              {post.type === "media" && post.media_url && (
+              {post.type === "image" && post.media_url && (
                 <img
                   src={post.media_url}
-                  alt="Post media"
-                  className="rounded-lg w-full object-cover"
+                  alt="Post image"
+                  className="rounded-lg w-full object-contain mb-3"
+                />
+              )}
+
+              {post.type === "video" && post.media_url && (
+                <video
+                  src={post.media_url}
+                  controls
+                  className="rounded-lg w-full mb-3"
                 />
               )}
 
               {post.type === "audio" && post.media_url && (
-                <audio controls className="w-full">
+                <audio controls className="w-full mb-3">
                   <source src={post.media_url} />
                 </audio>
+              )}
+
+              {post.text && post.type !== "text" && (
+                <p className="text-gray-800 mb-3">{post.text}</p>
               )}
 
               <p className="text-xs text-gray-400 mt-3">

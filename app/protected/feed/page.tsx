@@ -96,9 +96,33 @@ export default async function FeedPage() {
                                     </div>
 
                                     {/* Post Body */}
-                                    <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
-                                        {post.text}
-                                    </div>
+                                    {(post.text || post.type === "text") && (
+                                        <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
+                                            {post.text}
+                                        </div>
+                                    )}
+
+                                    {/* Media - Image */}
+                                    {post.type === "image" && post.media_url && (
+                                        <div className="mb-8 rounded-2xl overflow-hidden">
+                                            <img
+                                                src={post.media_url}
+                                                alt="Post image"
+                                                className="w-full max-h-[600px] object-contain rounded-2xl"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Media - Video */}
+                                    {post.type === "video" && post.media_url && (
+                                        <div className="mb-8 rounded-2xl overflow-hidden">
+                                            <video
+                                                src={post.media_url}
+                                                controls
+                                                className="w-full max-h-[600px] rounded-2xl"
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Interaction Buttons (Visual for now to avoid extra libraries) */}
                                     <div className="flex items-center justify-between pt-5 border-t border-slate-50">
