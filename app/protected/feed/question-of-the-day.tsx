@@ -70,7 +70,7 @@ export default function QuestionOfTheDay({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 sticky top-24">
+    <div className="bg-white rounded-xl shadow p-4">
       <h2 className="text-lg font-semibold mb-2">
         🧠 Question of the Day
       </h2>
@@ -95,17 +95,16 @@ export default function QuestionOfTheDay({
         <button
           type="submit"
           disabled={hasResponded || submitting || !answer.trim()}
-          className={`mt-2 w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold transition ${
-            hasResponded || submitting || !answer.trim()
+          className={`mt-2 w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold transition ${hasResponded || submitting || !answer.trim()
               ? "opacity-60 cursor-not-allowed"
               : "hover:bg-blue-600"
-          }`}
+            }`}
         >
           {hasResponded
             ? "Response Submitted"
             : submitting
-            ? "Submitting..."
-            : "Respond"}
+              ? "Submitting..."
+              : "Respond"}
         </button>
       </form>
 
@@ -125,10 +124,10 @@ export default function QuestionOfTheDay({
                 className="bg-blue-50 rounded-lg px-3 py-2 text-sm text-gray-800"
               >
                 <span className="font-semibold text-blue-700 mr-2">
-                    {r.user_id === currentUser.id
-                        ? "You"
-                        : `${r.users.firstname} ${r.users.lastname}`}
-                    :
+                  {r.user_id === currentUser.id
+                    ? "You"
+                    : `${r.users.firstname} ${r.users.lastname}`}
+                  :
                 </span>
 
                 {r.response}
