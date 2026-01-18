@@ -414,8 +414,8 @@ export default function Post({
                     <button
                         onClick={handleLikeToggle}
                         className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${isLiked
-                                ? "bg-rose-50 text-rose-500"
-                                : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
+                            ? "bg-rose-50 text-rose-500"
+                            : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
                             }`}
                     >
                         <Heart
@@ -564,8 +564,8 @@ export default function Post({
                                         type="button"
                                         onClick={isRecording ? stopRecording : startRecording}
                                         className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${isRecording
-                                                ? "bg-rose-500 text-white hover:bg-rose-600"
-                                                : "bg-orange-50 text-orange-600 hover:bg-orange-100"
+                                            ? "bg-rose-500 text-white hover:bg-rose-600"
+                                            : "bg-orange-50 text-orange-600 hover:bg-orange-100"
                                             }`}
                                     >
                                         {isRecording ? (
@@ -762,8 +762,8 @@ function AudioPlayer({
                     type="button"
                     onClick={() => onPlayPause(commentId)}
                     className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all ${isPlaying
-                            ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-200'
-                            : 'bg-white text-orange-600 hover:bg-orange-100 border-2 border-orange-200'
+                        ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-200'
+                        : 'bg-white text-orange-600 hover:bg-orange-100 border-2 border-orange-200'
                         }`}
                 >
                     {isPlaying ? (

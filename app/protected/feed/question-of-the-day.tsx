@@ -70,12 +70,12 @@ export default function QuestionOfTheDay({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-4">
-      <h2 className="text-lg font-semibold mb-2">
+    <div className="bg-white rounded-xl shadow p-6">
+      <h2 className="text-lg font-bold text-slate-900 mb-3">
         🧠 Question of the Day
       </h2>
 
-      <p className="text-gray-700 mb-4">{question}</p>
+      <p className="text-slate-700 mb-4 text-base">{question}</p>
 
       {/* INPUT */}
       <form onSubmit={handleSubmit}>
@@ -85,7 +85,7 @@ export default function QuestionOfTheDay({
               ? "You have already answered."
               : "Write your answer..."
           }
-          className="w-full border rounded-lg p-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+          className="w-full border border-slate-200 rounded-lg p-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 mb-3 bg-slate-50"
           rows={3}
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
@@ -95,9 +95,9 @@ export default function QuestionOfTheDay({
         <button
           type="submit"
           disabled={hasResponded || submitting || !answer.trim()}
-          className={`mt-2 w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold transition ${hasResponded || submitting || !answer.trim()
-              ? "opacity-60 cursor-not-allowed"
-              : "hover:bg-blue-600"
+          className={`mt-2 w-full bg-orange-500 text-white py-2 rounded-lg text-base font-semibold transition ${hasResponded || submitting || !answer.trim()
+            ? "opacity-60 cursor-not-allowed"
+            : "hover:bg-orange-600"
             }`}
         >
           {hasResponded
@@ -110,20 +110,20 @@ export default function QuestionOfTheDay({
 
       {/* RESPONSES */}
       <div className="mt-6">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">
+        <h3 className="text-base font-bold text-slate-800 mb-3">
           Today's Responses
         </h3>
 
         {localResponses.length === 0 ? (
-          <p className="text-xs text-gray-400">No responses yet.</p>
+          <p className="text-sm text-slate-400">No responses yet.</p>
         ) : (
           <ul className="space-y-3 max-h-48 overflow-y-auto pr-1">
             {localResponses.map((r) => (
               <li
                 key={r.id}
-                className="bg-blue-50 rounded-lg px-3 py-2 text-sm text-gray-800"
+                className="bg-amber-50 rounded-lg px-3 py-2 text-sm text-slate-800 border border-amber-200"
               >
-                <span className="font-semibold text-blue-700 mr-2">
+                <span className="font-semibold text-orange-700 mr-2">
                   {r.user_id === currentUser.id
                     ? "You"
                     : `${r.users.firstname} ${r.users.lastname}`}
@@ -131,7 +131,7 @@ export default function QuestionOfTheDay({
                 </span>
 
                 {r.response}
-                <span className="block text-xs text-gray-400 mt-1">
+                <span className="block text-xs text-slate-500 mt-1">
                   {new Date(r.created_at).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
