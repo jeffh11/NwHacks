@@ -18,7 +18,7 @@ export default function Avatar({
   className = ""
 }: AvatarProps) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(avatarUrl ? true : false);
 
   const sizeClasses = {
     sm: "h-9 w-9 text-xs",

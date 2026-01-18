@@ -459,11 +459,10 @@ export default function Post({
             )}
 
             {/* Comment Section */}
-            {showComments && (
-                <div className="mt-6 space-y-5">
-                    {comments.length === 0 ? (
-                        <p className="text-sm text-slate-400 font-semibold px-1">No comments yet. 💛</p>
-                    ) : (
+            <div className={`mt-6 space-y-5 ${showComments ? 'block' : 'hidden'}`}>
+                {comments.length === 0 ? (
+                    <p className="text-sm text-slate-400 font-semibold px-1">No comments yet. 💛</p>
+                ) : (
                         <div className="space-y-4">
                             {comments.map((comment) => (
                                 <div key={comment.id} className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
@@ -542,11 +541,11 @@ export default function Post({
                                 </div>
                             ))}
                         </div>
-                    )}
+                )}
 
-                    {/* New Comment Input */}
-                    <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
-                        <Avatar
+                {/* New Comment Input */}
+                <form onSubmit={handleCommentSubmit} className="flex gap-3 pt-2">
+                    <Avatar
                             name={currentUser.name}
                             initial={currentUser.initial}
                             avatarUrl={currentUser.avatarUrl}
@@ -620,7 +619,7 @@ export default function Post({
                                 )}
                             </div>
 
-                            <div className="mt-2 flex items-center justify-between">
+                    <div className="mt-2 flex items-center justify-between">
                                 <span className="text-xs text-rose-500 font-semibold">
                                     {commentError ?? ""}
                                 </span>
@@ -631,11 +630,10 @@ export default function Post({
                                 >
                                     {isUploading ? "Uploading..." : isSubmitting ? "Posting..." : "Post"}
                                 </button>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            )}
+            </form>
+            </div>
         </div>
     );
 }
