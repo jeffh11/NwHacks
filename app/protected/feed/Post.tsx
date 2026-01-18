@@ -1,41 +1,45 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client"; // Use corrected path
 import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
 
-interface PostProps {
-    post: {
-        id: string;
-        text: string | null;
-        type: "text" | "image" | "video";
-        media_url: string | null;
-        created_at: string;
-        post_user: string;
-    };
-    author: {
-        name: string;
-        initial: string;
-    };
-}
-
-export default function Post({ post, author }: PostProps) {
-    // 1. Track if the current user has liked it
+export default function Post({ post, author, currentUserId }: { post: any, author: any, currentUserId: string }) {
     const [isLiked, setIsLiked] = useState(false);
-
-    // 2. Track the total number of likes (starting at 0 for now)
     const [likesCount, setLikesCount] = useState(0);
+    const supabase = createClient();
 
-    const toggleLike = () => {
-        if (isLiked) {
-            // If already liked, unlike it and decrease count
-            setIsLiked(false);
-            setLikesCount(prev => prev - 1);
+    useEffect(() => {
+        const fetchLikes = async () => {
+            // Get total count
+            const { count } = await supabase
+                .from('likes')
+                .select('*', { count: 'exact', head: true })
+                .eq('post_id', post.id);
+            setLikesCount(count || 0);
+
+            // Check if user has liked it
+            const { data } = await supabase
+                .from('likes')
+                .select('id')
+                .eq('post_id', post.id)
+                .eq('user_id', currentUserId)
+                .maybeSingle();
+            if (data) setIsLiked(true);
+        };
+        fetchLikes();
+    }, [post.id, currentUserId, supabase]);
+
+    const toggleLike = async () => {
+        const previouslyLiked = isLiked;
+        setIsLiked(!previouslyLiked);
+        setLikesCount(prev => previouslyLiked ? prev - 1 : prev + 1);
+
+        if (previouslyLiked) {
+            await supabase.from('likes').delete().eq('post_id', post.id).eq('user_id', currentUserId);
         } else {
-            // If not liked, like it and increase count
-            setIsLiked(true);
-            setLikesCount(prev => prev + 1);
+            await supabase.from('likes').insert({ post_id: post.id, user_id: currentUserId });
         }
-        // Future: Call Supabase here to persist the data
     };
 
     return (
@@ -47,46 +51,25 @@ export default function Post({ post, author }: PostProps) {
                 </div>
                 <div>
                     <h3 className="font-bold text-slate-900 text-lg">{author.name}</h3>
-                    <div className="flex items-center gap-1 text-[10px] text-slate-400 uppercase font-black tracking-widest">
+                    <div className="flex items-center gap-1 text-[10px] text-slate-400 font-black tracking-widest uppercase">
                         <Clock size={12} />
                         {new Date(post.created_at).toLocaleDateString()}
                     </div>
                 </div>
             </div>
 
-            {/* Post Body */}
-            {/* Text-only posts */}
-            {post.type === "text" && post.text && (
-                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
-                    {post.text}
-                </div>
-            )}
+            {/* Post Body - Text */}
+            <div className="text-slate-800 text-xl font-medium mb-4 leading-relaxed px-1">
+                {post.text || post.content}
+            </div>
 
-            {/* Text for media posts (shown below media if text exists) */}
-            {post.text && (post.type === "image" || post.type === "video") && (
-                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
-                    {post.text}
-                </div>
-            )}
-            {/* Image Media */}
-            {post.type === "image" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden">
-                    <img
-                        src={post.media_url}
-                        alt="Post image"
-                        className="w-full max-h-[600px] object-contain rounded-2xl"
-                    />
-                </div>
-            )}
-
-
-            {/* Video Media */}
-            {post.type === "video" && post.media_url && (
-                <div className="mb-8 rounded-2xl overflow-hidden">
-                    <video
-                        src={post.media_url}
-                        controls
-                        className="w-full max-h-[600px] rounded-2xl"
+            {/* RESTORED: Image Rendering */}
+            {(post.image_url || post.post_image) && (
+                <div className="mb-6 rounded-2xl overflow-hidden border border-slate-100">
+                    <img 
+                        src={post.image_url || post.post_image} 
+                        alt="Family moment" 
+                        className="w-full h-auto object-cover max-h-[500px]"
                     />
                 </div>
             )}
@@ -94,25 +77,16 @@ export default function Post({ post, author }: PostProps) {
             {/* Interaction Buttons */}
             <div className="flex items-center justify-between pt-5 border-t border-slate-50">
                 <div className="flex gap-2">
-                    <button
+                    <button 
                         onClick={toggleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${isLiked
-                            ? "bg-rose-50 text-rose-500"
-                            : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
-                            }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-bold text-sm ${
+                            isLiked ? "bg-rose-50 text-rose-500" : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
+                        }`}
                     >
-                        <Heart
-                            size={20}
-                            fill={isLiked ? "currentColor" : "none"}
-                            className={isLiked ? "scale-110 transition-transform" : ""}
-                        />
-                        {/* Display the like count and handle pluralization */}
-                        <span>
-                            {likesCount} {likesCount === 1 ? 'like' : 'likes'}
-                        </span>
+                        <Heart size={20} fill={isLiked ? "currentColor" : "none"} className={isLiked ? "scale-110" : ""} /> 
+                        {likesCount} {likesCount === 1 ? 'like' : 'likes'}
                     </button>
-
-                    <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors font-bold text-sm">
+                    <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-bold text-sm">
                         <MessageCircle size={20} /> Comment
                     </button>
                 </div>
