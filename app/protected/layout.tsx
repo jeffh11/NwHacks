@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Users, LogOut, Home } from "lucide-react";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button"; //
+import isInFamily from "@/utils/isInFamily";
 
 async function AuthCheck({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

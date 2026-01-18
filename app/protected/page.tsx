@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card"; //
 import { Users, Heart, Plus, ArrowRight } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
@@ -9,10 +10,14 @@ export default async function ProtectedPage() {
 
   const { data: familyMemberships } = await supabase
     .from("family_members")
-    .select("family_id")
-    .eq("user_id", userData.user!.id);
+    .select("family")
+    .eq("user", userData.user!.id);
 
   const hasFamily = familyMemberships && familyMemberships.length > 0;
+
+  if (hasFamily) {
+    redirect("/protected/feed");
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex flex-col items-center justify-center p-4">
