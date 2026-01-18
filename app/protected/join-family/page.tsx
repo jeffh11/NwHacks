@@ -39,21 +39,23 @@ export default function JoinFamilyPage() {
                     Family Invite Code <span className="text-orange-500">*</span>
                   </label>
                   <div className="relative">
+                    {/* UPDATED INPUT:
+                        - placeholder updated to "eg: ABCDE"
+                        - text-center ensures the text and placeholder are centered
+                        - tracking-widest provides spacing between letters
+                    */}
                     <input
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-amber-100 bg-white focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-black text-2xl tracking-[0.3em] text-center uppercase"
-                      placeholder="ABCDE"
+                      className="w-full px-4 py-4 rounded-2xl border-2 border-amber-100 bg-white focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all font-black text-2xl tracking-widest text-center uppercase placeholder:text-center placeholder:normal-case"
+                      placeholder="eg: ABCDE"
                       maxLength={5}
                       value={joinCode}
                       onChange={(e) => setJoinCode(e.target.value)}
                     />
-                    <Key className="absolute left-4 top-4.5 h-6 w-6 text-amber-400" />
+                    {/* Removed absolute positioning of Key to ensure pure centering or moved to a side */}
+                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-6 w-6 text-amber-400 pointer-events-none" />
                   </div>
                 </div>
 
-                {/* UPDATED BUTTON:
-                    - Uses font-bold and text-lg to match the link below
-                    - Removed the wrapper div that was causing duplication issues
-                */}
                 <Button 
                   size="lg"
                   className="w-full h-16 text-lg font-bold bg-orange-500 hover:bg-orange-600 text-white rounded-2xl shadow-lg transition-all active:scale-95"
