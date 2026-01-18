@@ -1,111 +1,29 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Huddle
+Huddle is a platform that keeps long distance families in touch. Whether it's students moving away for school, or parents going on long term vacations, Huddle can bring your family together.
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+## Inspiration
+As students move away for school, staying connected with family can become harder than expected. Busy schedules, time zones, and distance often make regular communication difficult. Members of our team and many other families have experienced this story. We wanted to create a simple, meaningful way for families to stay close, even when they’re far apart.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## What it does
+Huddle is a simple social platform that is limited to members of your family, removing the clutter from mainstream social media sites. Users can make a private family and invite other family members to join it using a simple join code. Inside of a family users can make posts that consist of text, photos, and videos. Users can also react to posts and leave text or voice comments.
 
-## Features
+Family members can respond to a "Question of the day", promoting deeper connections between family members. We've also implemented a simple game with a daily leaderboard. Family members can compete for the best score, and this can help spark conversations through friendly competition. 
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## How we built it
+Huddle is a web app built with Next.js and Supabase. We placed a large emphasis on a simple UI/UX experience, making it easy for seniors who are less familiar with technology to engage with the platform. Supabase handles our database, media storage, and authentication.
 
-## Demo
+## Challenges we ran into
+One of the main challenges we ran into was managing version control earlier in the project. There was minimal pages which meant many of us were working on the same file leading to some pretty major merge conflicts. We eventually came together and made a system for making branches and PRs that helped resolve many of these issues.
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+Some of us were newer to full stack work, and learning how to work in this environment was a bit of a learning curve, but by the end we were all more confident in this area. 
 
-## Deploy to Vercel
+## Accomplishments that we're proud of
+We’re really proud of what we were able to build for Huddle in such a short amount of time. We implemented an online status feature so users can see when others are active, which helps make interactions feel more real and connected. We also added engaging features like a game and a leaderboard to encourage participation and friendly competition. On the backend, we successfully connected the app to Supabase, allowing us to reliably store and manage user information, which gave us a strong foundation to build on moving forward.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## What we learned
+Once we had someone working on a UI refresh on a component, and someone else was adding functionality to the component. As you can imagine this resulted in a pretty big merge conflict that was hard to resolve. We tried using GitHub's newer AI features, and added a comment to the PR that said "@copilot, resolve the merge conflicts in this PR, keeping the UI updates, but also keeping the new functionality". Copilot spun up an instance of our project, understood the conflict, and resolved it for us. 
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
-
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
-
-3. Use `cd` to change into the app's directory
-
-   ```bash
-   cd with-supabase-app
-   ```
-
-4. Rename `.env.example` to `.env.local` and update the following:
-
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
-
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
-
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
-
-Users can create or join a family group using an invite link or code.
+## What's next for Huddle
+The next step for Huddle is to implement features we didn’t have time to complete during the hackathon. One feature we hope to add is a personalized notification system that allows users to send messages of warmth and care to individuals. We also plan to integrate the OpenAI API to enhance the daily games by improving question quality and introducing greater variety. Additionally, we aim to transition Huddle from a website to a mobile app, making it more accessible and convenient for users.
