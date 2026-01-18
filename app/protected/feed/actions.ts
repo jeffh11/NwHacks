@@ -8,6 +8,9 @@ import { revalidatePath } from "next/cache";
 type CreateCommentInput = {
   postId: string;
   text: string;
+  audioUrl?: string | null;
+  audioDurationMs?: number | null;
+  audioMime?: string | null;
 };
 
 type CommentResponse = {
@@ -15,6 +18,9 @@ type CommentResponse = {
   content: string;
   created_at: string;
   comment_user: string;
+  audio_url: string | null;
+  audio_duration_ms: number | null;
+  audio_mime: string | null;
 };
 
 type DeletePostInput = {
@@ -39,7 +45,13 @@ const getStoragePathFromUrl = (mediaUrl: string) => {
 /**
  * Creates a new comment
  */
-export async function createComment({ postId, text }: CreateCommentInput): Promise<CommentResponse> {
+export async function createComment({ 
+  postId, 
+  text, 
+  audioUrl, 
+  audioDurationMs, 
+  audioMime 
+}: CreateCommentInput): Promise<CommentResponse> {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -48,8 +60,15 @@ export async function createComment({ postId, text }: CreateCommentInput): Promi
   }
 
   const trimmed = text.trim();
-  if (!trimmed) {
-    throw new Error("Comment cannot be empty.");
+  
+  // Allow comments with either text or audio (or both)
+  if (!trimmed && !audioUrl) {
+    throw new Error("Comment must have either text or audio.");
+  }
+
+  // Validate audio metadata if audio URL is provided
+  if (audioUrl && (!audioDurationMs || !audioMime)) {
+    throw new Error("Audio metadata is required when audio URL is provided.");
   }
 
   const { data, error } = await supabase
@@ -57,10 +76,13 @@ export async function createComment({ postId, text }: CreateCommentInput): Promi
     .insert({
       comment_post: postId,
       comment_user: user.id,
-      content: trimmed,
+      content: trimmed || null,
+      audio_url: audioUrl || null,
+      audio_duration_ms: audioDurationMs || null,
+      audio_mime: audioMime || null,
       created_at: new Date().toISOString()
     })
-    .select("id, content, created_at, comment_user")
+    .select("id, content, created_at, comment_user, audio_url, audio_duration_ms, audio_mime")
     .single();
 
   if (error || !data) {

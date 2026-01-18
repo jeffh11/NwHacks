@@ -47,7 +47,11 @@ export default async function FeedPage() {
     // --- FETCH LIKES & COMMENTS ---
     const [{ data: comments }, { data: likes }] = await Promise.all([
         postIds.length > 0
-            ? supabase.from("comments").select("*").in("comment_post", postIds).order("created_at", { ascending: true })
+            ? supabase
+                .from("comments")
+                .select("id, content, created_at, comment_user, comment_post, audio_url, audio_duration_ms, audio_mime")
+                .in("comment_post", postIds)
+                .order("created_at", { ascending: true })
             : Promise.resolve({ data: [] }),
         postIds.length > 0
             ? supabase.from("likes").select("post_id, user_id").in("post_id", postIds)
