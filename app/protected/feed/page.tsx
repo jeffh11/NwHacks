@@ -132,7 +132,7 @@ export default async function FeedPage() {
 
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex justify-center p-4 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex justify-center p-4 md:p-8">
             <div className="max-w-[90rem] w-full grid grid-cols-1 lg:grid-cols-4 gap-10">
                 {/* QUESTION OF THE DAY */}
                 <div className="hidden lg:block lg:col-span-1">
@@ -148,7 +148,7 @@ export default async function FeedPage() {
 
                 {/* MAIN FEED */}
                 <div className="lg:col-span-2 space-y-10">
-                    <header className="flex justify-between items-end mb-4">
+                    <header className="bg-white rounded-xl shadow p-6 flex justify-between items-end mb-4">
                         <div>
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
                             {familyData?.name + " Feed" || "Family Feed"}
@@ -182,8 +182,8 @@ export default async function FeedPage() {
 
                     {/* GALLERY PREVIEW */}
                     {galleryPosts.length > 0 && (
-                        <section className="space-y-4">
-                            <div className="flex justify-between items-center px-1">
+                        <section className="bg-white rounded-xl shadow p-6 space-y-4">
+                            <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <ImageIcon size={20} className="text-orange-500" />
                                     <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wider">
@@ -207,7 +207,7 @@ export default async function FeedPage() {
                                 {galleryPosts.slice(0, 6).map((post) => (
                                     <div
                                         key={post.id}
-                                        className="aspect-square rounded-3xl overflow-hidden border-4 border-white shadow-sm"
+                                        className="aspect-square rounded-lg overflow-hidden shadow-sm"
                                     >
                                         <img
                                             src={post.media_url!}
