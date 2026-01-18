@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Users, LogOut, Home } from "lucide-react";
 import { Suspense } from "react";
+import isInFamily from "@/utils/isInFamily";
 
 // Separate async component for streaming
 async function AuthCheck({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,10 @@ async function AuthCheck({ children }: { children: React.ReactNode }) {
     
     if (error || !user) {
       redirect("/auth/login");
+    }
+
+    if (await isInFamily()) {
+      redirect("/protected/feed")
     }
 
   } catch (error) {
