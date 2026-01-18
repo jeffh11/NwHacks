@@ -281,6 +281,6 @@ export default function Post({
                     </form>
                 </div>
             )}
-        </div>
+        </div> 
     );
 } 

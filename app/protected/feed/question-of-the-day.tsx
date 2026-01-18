@@ -15,7 +15,7 @@ export default function QuestionOfTheDay() {
         rows={3}
         disabled 
       />
-
+ 
       <button
         disabled
         className="mt-3 w-full bg-blue-500 text-white py-2 rounded-lg text-sm opacity-60 cursor-not-allowed"

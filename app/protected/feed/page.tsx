@@ -5,6 +5,7 @@ import FamilySidebar from "../../components/family-sidebar";
 import Link from "next/link";
 import Post from "./Post";
 import QuestionOfTheDay from "./question-of-the-day";
+import Leaderboard from "./leaderboard"; // 1. ADD THIS IMPORT
 
 export default async function FeedPage() {
   const supabase = await createClient();
@@ -91,10 +92,11 @@ export default async function FeedPage() {
       {/* 🔥 WIDE GRID */}
       <div className="max-w-[90rem] w-full grid grid-cols-1 lg:grid-cols-4 gap-10">
 
-        {/* QUESTION OF THE DAY */}
+        {/* QUESTION OF THE DAY & LEADERBOARD */}
         <div className="hidden lg:block lg:col-span-1">
-          <div className="sticky top-32">
+          <div className="sticky top-32 space-y-6"> {/* Added space-y-6 for gap between components */}
             <QuestionOfTheDay />
+            <Leaderboard profiles={profiles} /> {/* 2. ADD THIS COMPONENT HERE */}
           </div>
         </div>
 
@@ -111,7 +113,6 @@ export default async function FeedPage() {
             </div>
 
             <div className="flex gap-2">
-
               <Link
                 href="/protected/create-post"
                 className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95"
@@ -145,10 +146,13 @@ export default async function FeedPage() {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {galleryPosts.slice(0, 6).map((post) => (
+                {galleryPosts.slice(0, 6).map((post, idx) => (
                   <div
                     key={post.id}
-                    className="aspect-square rounded-3xl overflow-hidden border-4 border-white shadow-sm"
+                    className={`aspect-square overflow-hidden border-4 border-white shadow-sm transition-all
+                      ${idx % 3 === 0 ? 'rounded-[30%_70%_70%_30%/30%_30%_70%_70%]' : ''}
+                      ${idx % 3 === 1 ? 'rounded-[70%_30%_30%_70%/70%_70%_30%_30%]' : ''}
+                      ${idx % 3 === 2 ? 'rounded-[50%_50%_50%_50%/30%_60%_40%_70%]' : ''}`}
                   >
                     <img
                       src={post.media_url!}
