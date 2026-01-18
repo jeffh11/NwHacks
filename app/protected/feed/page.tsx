@@ -150,25 +150,35 @@ export default async function FeedPage() {
                 <div className="lg:col-span-2 space-y-10">
                     <header className="flex justify-between items-end mb-4">
                         <div>
-                            {/* 🔥 DISPLAY FAMILY NAME */}
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-                                {familyData?.name + " Feed" || "Family Feed"}
+                            {familyData?.name + " Feed" || "Family Feed"}
                             </h1>
-                            {/* 🔥 DISPLAY FAMILY DESCRIPTION */}
+
                             <p className="text-slate-500 font-medium italic">
-                                {familyData?.description || "Your latest family moments"}
+                            {familyData?.description || "Your latest family moments"}
                             </p>
+
+                            {/* 🔑 JOIN CODE */}
+                            <div className="mt-2 inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3 py-1">
+                            <span className="text-xs font-semibold text-slate-500 uppercase">
+                                Join Code
+                            </span>
+                            <span className="font-mono text-sm font-bold text-slate-800 tracking-wider">
+                                {familyIds[0]}
+                            </span>
+                            </div>
                         </div>
 
                         <div className="flex gap-2">
                             <Link
-                                href="/protected/create-post"
-                                className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95"
+                            href="/protected/create-post"
+                            className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-2xl shadow-lg transition-transform active:scale-95"
                             >
-                                <Plus size={24} />
+                            <Plus size={24} />
                             </Link>
                         </div>
-                    </header>
+                        </header>
+
 
                     {/* GALLERY PREVIEW */}
                     {galleryPosts.length > 0 && (
