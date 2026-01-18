@@ -66,7 +66,7 @@ export default function ProtectedLayout({
 
       {/* Main Content Area */}
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-12">
+        <div className="mx-auto w-full max-w-[90rem] px-6 py-8 sm:py-12">
           <Suspense fallback={<LoadingState />}>
             <AuthCheck>{children}</AuthCheck>
           </Suspense>
