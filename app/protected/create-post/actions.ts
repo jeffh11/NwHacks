@@ -30,5 +30,5 @@ export async function createPost(formData: FormData): Promise<void> {
   }
 
   // 4. Redirect to dashboard on success
-  redirect("/protected/dashboard");
+  redirect("/protected/feed");
 }
