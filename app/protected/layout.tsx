@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { LogOut, Home } from "lucide-react";
+import { LogOut, Home, Trophy } from "lucide-react";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button"; //
 import HeaderUserAvatar from "./header-user-avatar";
@@ -44,7 +44,21 @@ export default function ProtectedLayout({
           </div>
 
           {/* Bigger Navigation Actions */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
+            <Link
+              href="/protected/feed"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-amber-800 font-bold hover:bg-amber-50 transition-all"
+            >
+              <Home className="h-5 w-5" />
+              <span className="text-lg">Feed</span>
+            </Link>
+            <Link
+              href="/protected/game"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-amber-800 font-bold hover:bg-amber-50 transition-all"
+            >
+              <Trophy className="h-5 w-5" />
+              <span className="text-lg">Game</span>
+            </Link>
 
             <form action="/auth/logout" method="POST">
               {/* Using the Button component from your UI library with size="lg" */}

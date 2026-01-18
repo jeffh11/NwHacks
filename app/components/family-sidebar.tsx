@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Users } from "lucide-react";
 import Avatar from "@/components/avatar";
+import leaveFamily from "@/utils/leaveFamily";
 
 interface Profile {
   supabase_id: string;
@@ -99,6 +100,23 @@ export default function FamilySidebar({
           );
         })}
       </div>
+
+      <form
+        action={leaveFamily.bind(null, familyId)}
+        onSubmit={(event) => {
+          if (!confirm("Leave this family? You can rejoin with an invite code.")) {
+            event.preventDefault();
+          }
+        }}
+        className="pt-6"
+      >
+        <button
+          type="submit"
+          className="w-full rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-600 transition hover:bg-red-100 active:scale-[0.98]"
+        >
+          Leave Family
+        </button>
+      </form>
     </div>
   );
 }
