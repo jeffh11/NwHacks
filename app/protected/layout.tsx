@@ -76,7 +76,7 @@ export default function ProtectedLayout({
       {/* Footer */}
       <footer className="mt-auto border-t border-amber-200 bg-white py-6">
         <div className="text-center text-base font-medium text-amber-700/70">
-          Made for families, built with Huddle
+          Made for families, built with ❤️
         </div>
       </footer>
     </div>
