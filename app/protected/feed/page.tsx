@@ -177,4 +177,4 @@ export default async function FeedPage() {
             </div>
         </div>
     );
-}
+} 
