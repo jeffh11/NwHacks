@@ -45,9 +45,6 @@ export default function ProtectedLayout({
 
           {/* Bigger Navigation Actions */}
           <div className="flex items-center gap-8">
-            <a href="/protected" className="hover:scale-110 transition-transform">
-              <Home className="h-8 w-8 text-amber-800" />
-            </a>
 
             <form action="/auth/logout" method="POST">
               {/* Using the Button component from your UI library with size="lg" */}
