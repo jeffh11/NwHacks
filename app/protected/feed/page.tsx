@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { Users, Plus } from "lucide-react";
-import { MessageCircle, Heart, Share2, Users, Clock, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import FamilySidebar from "../../components/family-sidebar";
 import Link from "next/link";
 import Post from "./Post"; // Import the client component you just created
@@ -81,10 +80,10 @@ export default async function FeedPage() {
                             const author = getAuthor(post.post_user);
                             // Pass data to the Client Component
                             return (
-                                <Post 
-                                    key={post.id} 
-                                    post={post} 
-                                    author={author} 
+                                <Post
+                                    key={post.id}
+                                    post={post}
+                                    author={author}
                                 />
                             );
                         })
@@ -93,11 +92,11 @@ export default async function FeedPage() {
 
                 {/* SIDEBAR */}
                 <div className="lg:col-span-1">
-                <FamilySidebar
-                    profiles={profiles}
-                    familyId={familyIds[0]}
-                    currentUserId={user.id}
-                />
+                    <FamilySidebar
+                        profiles={profiles}
+                        familyId={familyIds[0]}
+                        currentUserId={user.id}
+                    />
                 </div>
 
 

@@ -3,10 +3,25 @@
 import { useState } from "react";
 import { MessageCircle, Heart, Share2, Clock } from "lucide-react";
 
-export default function Post({ post, author }: { post: any, author: any }) {
+interface PostProps {
+    post: {
+        id: string;
+        text: string | null;
+        type: "text" | "image" | "video";
+        media_url: string | null;
+        created_at: string;
+        post_user: string;
+    };
+    author: {
+        name: string;
+        initial: string;
+    };
+}
+
+export default function Post({ post, author }: PostProps) {
     // 1. Track if the current user has liked it
     const [isLiked, setIsLiked] = useState(false);
-    
+
     // 2. Track the total number of likes (starting at 0 for now)
     const [likesCount, setLikesCount] = useState(0);
 
@@ -40,32 +55,63 @@ export default function Post({ post, author }: { post: any, author: any }) {
             </div>
 
             {/* Post Body */}
-            <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
-                {post.text}
-            </div>
+            {/* Text-only posts */}
+            {post.type === "text" && post.text && (
+                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
+                    {post.text}
+                </div>
+            )}
+
+            {/* Text for media posts (shown below media if text exists) */}
+            {post.text && (post.type === "image" || post.type === "video") && (
+                <div className="text-slate-800 text-xl font-medium mb-8 leading-relaxed px-1">
+                    {post.text}
+                </div>
+            )}
+            {/* Image Media */}
+            {post.type === "image" && post.media_url && (
+                <div className="mb-8 rounded-2xl overflow-hidden">
+                    <img
+                        src={post.media_url}
+                        alt="Post image"
+                        className="w-full max-h-[600px] object-contain rounded-2xl"
+                    />
+                </div>
+            )}
+
+
+            {/* Video Media */}
+            {post.type === "video" && post.media_url && (
+                <div className="mb-8 rounded-2xl overflow-hidden">
+                    <video
+                        src={post.media_url}
+                        controls
+                        className="w-full max-h-[600px] rounded-2xl"
+                    />
+                </div>
+            )}
 
             {/* Interaction Buttons */}
             <div className="flex items-center justify-between pt-5 border-t border-slate-50">
                 <div className="flex gap-2">
-                    <button 
+                    <button
                         onClick={toggleLike}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${
-                            isLiked 
-                            ? "bg-rose-50 text-rose-500" 
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-sm ${isLiked
+                            ? "bg-rose-50 text-rose-500"
                             : "text-slate-500 hover:bg-rose-50 hover:text-rose-500"
-                        }`}
+                            }`}
                     >
-                        <Heart 
-                            size={20} 
-                            fill={isLiked ? "currentColor" : "none"} 
+                        <Heart
+                            size={20}
+                            fill={isLiked ? "currentColor" : "none"}
                             className={isLiked ? "scale-110 transition-transform" : ""}
-                        /> 
+                        />
                         {/* Display the like count and handle pluralization */}
                         <span>
                             {likesCount} {likesCount === 1 ? 'like' : 'likes'}
                         </span>
                     </button>
-                    
+
                     <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors font-bold text-sm">
                         <MessageCircle size={20} /> Comment
                     </button>
