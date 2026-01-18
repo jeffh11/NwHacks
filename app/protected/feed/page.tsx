@@ -134,7 +134,7 @@ export default async function FeedPage() {
             <div className="max-w-[90rem] w-full grid grid-cols-1 lg:grid-cols-4 gap-10">
                 {/* QUESTION OF THE DAY */}
                 <div className="hidden lg:block lg:col-span-1">
-                    <div className="sticky top-32">
+                    <div className="sticky top-24">
                         <QuestionOfTheDay
                             question={qotdQuestion}
                             responses={qotdResponses || []}

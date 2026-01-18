@@ -54,7 +54,7 @@ export default function FamilySidebar({
   }, [familyId, currentUserId, supabase]);
 
   return (
-    <div className="sticky top-8 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
+    <div className="sticky top-24 bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
       <h2 className="flex items-center gap-2 font-black uppercase tracking-[0.2em] text-[10px] mb-8 text-slate-400">
         <Users size={16} className="text-orange-500" />
         Family Circle

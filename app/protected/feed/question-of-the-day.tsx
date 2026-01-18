@@ -70,7 +70,7 @@ export default function QuestionOfTheDay({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 sticky top-24">
+    <div className="bg-white rounded-xl shadow p-4">
       <h2 className="text-lg font-semibold mb-2">
         🧠 Question of the Day
       </h2>
